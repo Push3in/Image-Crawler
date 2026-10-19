@@ -54,7 +54,9 @@ Values tuned by eye:
 - Click opens the detail view. **Select images** button enters selection mode; then click/Shift-click/⌘A select.
 - Selected: image scales to 0.9 with a check (0.95 tried and reverted), no background colour. Snappy transition: `transform .22s cubic-bezier(0.3,1.35,0.5,1)`; no radius transition, no `overflow:hidden` on the frame.
 - "Found N images" notice: top centre, 84px from the top (just under the header), springs in and out.
+- File size (Finder units, 1 KB = 1000 bytes): shown after the dimensions on one line in grid captions and the detail view title ("1200 × 800 · 245 KB"). Tried a second line under the dimensions in the grid; looked odd, reverted. Size comes from the thumbnail fetch when there is one, else a HEAD request (Content-Length), else the browser cache; looked up as tiles come into view. Unknown → dimensions only.
 - Selection bar order: count · Select all · Download · Copy links · Add to Atlas · ✕.
+- Selection bar bumps (scale 1.06) only when downloaded images fly into it, not on every selection change (removed as too busy). Instead, on select/unselect the bar's width glides to fit the new text with `SPRING_CLOSE` (~260ms, no overshoot), and disabled buttons fade (opacity 0.2s).
 
 ## 5. Detail view (spring morph)
 
@@ -81,6 +83,7 @@ Values tuned by eye:
 - `install.sh` copies the helper to `~/Library/Application Support/ImageCrawlerAtlas/`, writes a launcher, caches the token, then `install_hosts.py` registers the host for every Chromium browser it finds (plus Chrome's and Chromium's shared folders), with `allowed_origins` = the extension IDs it finds (absolute-path match or manifest name "Image Crawler"). `--id <store id>` adds a store ID; `STORE_IDS` in `install_hosts.py` can hold it permanently; `--uninstall` removes everything.
 - Logs: `~/Library/Logs/ImageCrawler-Atlas.log`.
 - The Atlas buttons (`.atlas-btn`) are hidden unless a `ping` succeeds (`body.has-atlas`).
+- Progress toast (shared with downloads) springs in and out like the notice: from `translateY(16px) scale(0.96)`, `SPRING_OPEN` / `SPRING_CLOSE`. The check/warning icon pops from `scale(0.4)` with `SPRING_POP` (k=500 c=26, ~9% overshoot, ~475ms). Previously a 0.3s cubic-bezier slide-in and an instant hide.
 - Button icon: `icons/atlas.png` (Atlas app icon, 64px). It's another app's trademark; consider replacing it for a public listing.
 
 Debugging in Dia, in order:

@@ -112,6 +112,10 @@ function hostOf(url) {
 }
 
 const dimsOf = (item) => (item.width ? `${item.width} × ${item.height}` : item.type.toUpperCase());
+// File size in the same units Finder uses (1 KB = 1000 bytes).
+const bytesLabel = (bytes) => (bytes < 1e6 ? `${Math.max(1, Math.round(bytes / 1e3))} KB` : `${(bytes / 1e6).toFixed(1)} MB`);
+// Caption under a photo and in the detail view: "1200 × 800 · 245 KB".
+const captionOf = (item) => (item.bytes ? `${dimsOf(item)} · ${bytesLabel(item.bytes)}` : dimsOf(item));
 // How a photo is named in progress lists. Page file names are usually encoded
 // server ids, so size and type say more.
 const rowName = (item) => (item.width && item.type !== 'other' ? `${dimsOf(item)} · ${item.type.toUpperCase()}` : dimsOf(item));
@@ -241,7 +245,10 @@ function pumpThumbs() {
     const item = thumbQueue.shift();
     thumbing++;
     thumbnailFor(item)
-      .then((src) => showTileImage(item, src))
+      .then((src) => {
+        showTileImage(item, src);
+        return sizeFor(item);
+      })
       .finally(() => {
         thumbing--;
         pumpThumbs();
@@ -254,6 +261,7 @@ async function thumbnailFor(item) {
   try {
     // Extension pages can fetch any site (host permission), so no CORS taint.
     const blob = await (await fetch(item.url, { credentials: 'include' })).blob();
+    setBytes(item, blob.size);
     const bitmap = await createImageBitmap(blob, { resizeHeight: THUMB_HEIGHT, resizeQuality: 'medium' });
     const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
     canvas.getContext('2d').drawImage(bitmap, 0, 0);
@@ -263,6 +271,36 @@ async function thumbnailFor(item) {
   } catch {
     return item.url;
   }
+}
+
+// File size: free when the original was fetched for a thumbnail, otherwise a
+// HEAD request, then the browser cache (servers that skip Content-Length or
+// compress it). Unknown sizes just leave the caption as dimensions only.
+function sizeFor(item) {
+  if (item.bytes !== undefined) return Promise.resolve();
+  item.bytes = 0; // asked once
+  if (item.url.startsWith('data:')) {
+    const data = item.url.slice(item.url.indexOf(',') + 1);
+    setBytes(item, item.url.includes(';base64,') ? Math.floor((data.length * 3) / 4) : decodeURIComponent(data).length);
+    return Promise.resolve();
+  }
+  return (async () => {
+    try {
+      const head = await fetch(item.url, { method: 'HEAD', credentials: 'include' });
+      const length = Number(head.headers.get('content-length'));
+      if (head.ok && length > 0 && !head.headers.get('content-encoding')) return setBytes(item, length);
+      const res = await fetch(item.url, { credentials: 'include', cache: 'force-cache' });
+      if (res.ok) setBytes(item, (await res.blob()).size);
+    } catch {}
+  })();
+}
+
+function setBytes(item, bytes) {
+  if (!bytes) return;
+  item.bytes = bytes;
+  const dims = item.frameEl?.parentElement.querySelector('.dims');
+  if (dims) dims.textContent = captionOf(item);
+  if (state.viewerIndex >= 0 && viewerItem() === item) updateViewerLabels();
 }
 
 function showTileImage(item, src) {
@@ -297,7 +335,7 @@ function createTile(item) {
 
   const dims = document.createElement('div');
   dims.className = 'dims';
-  dims.textContent = dimsOf(item);
+  dims.textContent = captionOf(item);
 
   tile.append(frame, dims);
   tile.addEventListener('click', (e) => onTileClick(item, e));
@@ -477,19 +515,27 @@ function updateEmptyState() {
 
 const selectedItems = () => state.visible.filter((i) => i.selected);
 
+let barAnim = null;
+
 function updateSelection() {
   const count = selectedItems().length;
-  const wasHidden = els.selectionBar.hidden;
-  els.selectionBar.hidden = !state.selectMode;
+  const bar = els.selectionBar;
+  // Width before the text changes (mid-animation if one is running).
+  const fromWidth = bar.hidden ? 0 : bar.getBoundingClientRect().width;
+  barAnim?.cancel();
+  bar.hidden = !state.selectMode;
   els.selCount.textContent = count ? `${count.toLocaleString()} selected` : 'Select images';
   els.selAll.textContent = count && count === state.visible.length ? 'Deselect all' : 'Select all';
   els.selDownload.disabled = count === 0;
   els.selAtlas.disabled = count === 0;
   els.selCopy.disabled = count === 0;
-  if (!wasHidden && count) {
-    els.selectionBar.classList.remove('bump');
-    void els.selectionBar.offsetWidth;
-    els.selectionBar.classList.add('bump');
+  // Glide to the new width ("Select images" → "12 selected") instead of jumping.
+  const toWidth = bar.hidden ? 0 : bar.getBoundingClientRect().width;
+  if (fromWidth && toWidth && Math.abs(fromWidth - toWidth) > 0.5) {
+    barAnim = bar.animate([{ width: `${fromWidth}px` }, { width: `${toWidth}px` }], {
+      duration: SPRING_CLOSE.duration,
+      easing: SPRING_CLOSE.easing,
+    });
   }
 }
 
@@ -557,12 +603,31 @@ function hideNotice() {
 
 // ---------- toast ----------
 
+// Progress for downloads and Add to Atlas, bottom right. Springs up into view
+// and back down when it leaves, like the notice.
+const TOAST_HIDDEN = { opacity: 0, transform: 'translateY(16px) scale(0.96)' };
+const TOAST_SHOWN = { opacity: 1, transform: 'none' };
 let toastTimer = 0;
+let toastAnim = null;
 let toastOnClose = null;
 
 function showToast({ icon = 'spin', title, sub = '', rows = null, action = null, autoHide = 0, onClose = null }) {
   clearTimeout(toastTimer);
-  els.toast.hidden = false;
+  if (els.toast.hidden || toastAnim?.leaving) {
+    els.toast.hidden = false;
+    toastAnim?.cancel();
+    toastAnim = els.toast.animate([TOAST_HIDDEN, TOAST_SHOWN], {
+      duration: SPRING_OPEN.duration,
+      easing: SPRING_OPEN.easing,
+    });
+  }
+  // Pop the icon when it turns into a check or warning, not on every update.
+  if (icon !== 'spin' && !els.toastIcon.classList.contains(icon)) {
+    els.toastIcon.animate([{ transform: 'scale(0.4)' }, { transform: 'none' }], {
+      duration: SPRING_POP.duration,
+      easing: SPRING_POP.easing,
+    });
+  }
   els.toastIcon.className = `toast-icon ${icon}`;
   els.toastTitle.textContent = title;
   els.toastSub.textContent = sub;
@@ -590,7 +655,21 @@ function showToast({ icon = 'spin', title, sub = '', rows = null, action = null,
 
 function hideToast() {
   clearTimeout(toastTimer);
-  els.toast.hidden = true;
+  if (els.toast.hidden || toastAnim?.leaving) return;
+  toastAnim?.cancel();
+  const anim = els.toast.animate([TOAST_SHOWN, TOAST_HIDDEN], {
+    duration: SPRING_CLOSE.duration,
+    easing: SPRING_CLOSE.easing,
+    fill: 'forwards',
+  });
+  anim.leaving = true;
+  toastAnim = anim;
+  anim.finished.then(() => {
+    if (toastAnim !== anim) return; // shown again mid-exit
+    els.toast.hidden = true;
+    anim.cancel();
+    toastAnim = null;
+  }).catch(() => {});
 }
 
 els.toastClose.addEventListener('click', () => {
@@ -993,6 +1072,8 @@ function springCurve({ stiffness, damping, mass = 1 }) {
 // Open: 95% there in ~125ms with a 1.5% overshoot. Close: ~150ms, no bounce.
 const SPRING_OPEN = springCurve({ stiffness: 600, damping: 36 });
 const SPRING_CLOSE = springCurve({ stiffness: 600, damping: 40 });
+// Toast check mark: looser, so it visibly bounces (~10% overshoot).
+const SPRING_POP = springCurve({ stiffness: 500, damping: 26 });
 
 let viewerAnim = null;
 let shadowAnim = null;
@@ -1061,7 +1142,8 @@ function morph(from, to, spring, shadowFrom, shadowTo) {
 
 function updateViewerLabels() {
   const item = viewerItem();
-  els.viewerTitle.textContent = dimsOf(item);
+  els.viewerTitle.textContent = captionOf(item);
+  sizeFor(item);
   els.viewerMeta.textContent = [item.type === 'other' ? null : item.type.toUpperCase(), hostOf(item.url), `${state.viewerIndex + 1} of ${state.visible.length}`]
     .filter(Boolean)
     .join(' · ');
