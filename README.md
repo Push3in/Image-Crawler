@@ -11,7 +11,7 @@ A Chrome extension (Manifest V3) that shows every image on a page in a clean, At
 
 ## Using it
 
-Clicking the icon opens the gallery as an overlay on the current page (a white panel covering 90% of the screen) and scans the page. Close it with the ✕, Esc, clicking outside, or clicking the icon again. On pages Chrome doesn't let extensions touch (like `chrome://` pages) it opens in a tab instead and explains why.
+Clicking the icon opens the gallery as an overlay on the current page (a white panel, 95% wide and 92% tall) and scans the page. Close it with the ✕, Esc, clicking outside, or clicking the icon again. On pages Chrome doesn't let extensions touch (like `chrome://` pages) it opens in a tab instead and explains why.
 
 - **Gallery**: justified rows, each image at its real proportions, dimensions underneath.
 - **Click** an image to open it full size (it springs out of its tile). Use ← → to browse, Esc or click to close.
