@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Images</title>
+  <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="source">
+      <img id="favicon" alt="">
+      <div class="source-text">
+        <div id="page-title">Loading…</div>
+        <div id="page-meta" class="muted"></div>
+      </div>
+    </div>
+
+    <div class="tools">
+      <div class="menu-wrap">
+        <button id="type-btn" class="pill dropdown" title="File type">
+          <span id="type-label">All types</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 6.5 8 10l3.5-3.5"/></svg>
+        </button>
+        <div id="type-menu" class="menu menu-list" hidden>
+          <button data-value="all" class="checked">All types</button>
+          <hr>
+          <button data-value="jpg">JPG</button>
+          <button data-value="png">PNG</button>
+          <button data-value="gif">GIF</button>
+          <button data-value="webp">WebP</button>
+          <button data-value="avif">AVIF</button>
+          <button data-value="svg">SVG</button>
+          <button data-value="ico">ICO</button>
+          <button data-value="other">Other</button>
+        </div>
+      </div>
+
+      <div class="menu-wrap">
+        <button id="size-btn" class="pill dropdown" title="Minimum size">
+          <span id="size-label">300 px +</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 6.5 8 10l3.5-3.5"/></svg>
+        </button>
+        <div id="size-menu" class="menu menu-list" hidden>
+          <button data-value="0">Any size</button>
+          <button data-value="100">100 px +</button>
+          <button data-value="300" class="checked">300 px +</button>
+          <button data-value="600">600 px +</button>
+          <button data-value="1000">1000 px +</button>
+        </div>
+      </div>
+
+      <div class="menu-wrap">
+        <button id="crawl-btn" class="pill">Crawl site</button>
+        <div id="crawl-menu" class="menu" hidden>
+          <p class="menu-note">Follow links from this page and collect images from each one.</p>
+          <label class="menu-field">Pages to visit <input type="number" id="max-pages" value="20" min="1" max="500"></label>
+          <label class="menu-check"><input type="checkbox" id="same-origin" checked> Stay on this site</label>
+          <button id="crawl-start" class="primary">Start crawl</button>
+        </div>
+      </div>
+
+      <div class="menu-wrap">
+        <button id="more-btn" class="pill icon-pill" title="More">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12.5" cy="8" r="1.2"/></svg>
+        </button>
+        <div id="more-menu" class="menu menu-list" hidden>
+          <button data-action="rescan">Scan page again</button>
+          <button data-action="deep">Scroll page to load more</button>
+          <hr>
+          <button data-action="select-all">Select all <kbd>⌘A</kbd></button>
+          <button data-action="clear">Clear results</button>
+        </div>
+      </div>
+
+      <button id="select-mode" class="pill select-btn">Select images</button>
+
+      <button id="close-overlay" class="pill icon-pill close-pill" title="Close (Esc)">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="scroller" class="scroller">
+    <main id="gallery"></main>
+  </div>
+
+  <div id="empty" class="empty" hidden>
+    <p id="empty-title">No images yet</p>
+    <p id="empty-text" class="muted"></p>
+  </div>
+
+  <!-- bottom-left -->
+  <button id="shuffle" class="float-btn float-left" title="Shuffle">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h3.2c1.4 0 2.6.7 3.4 1.8l2.8 4.4c.8 1.1 2 1.8 3.4 1.8H17M3 14h3.2c1.4 0 2.6-.7 3.4-1.8M12.4 7.8c.8-1.1 2-1.8 3.4-1.8H17M15 4l2 2-2 2M15 12l2 2-2 2"/></svg>
+  </button>
+
+  <!-- bottom-right -->
+  <div class="float-right">
+    <button id="zoom-out" class="float-btn" title="Smaller (−)">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4M6.5 9h5"/></svg>
+    </button>
+    <button id="zoom-in" class="float-btn" title="Larger (+)">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4M6.5 9h5M9 6.5v5"/></svg>
+    </button>
+    <div class="menu-wrap">
+      <button id="sort-btn" class="float-btn" title="Sort">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h10M3 10h7M3 15h4M15 8v9M12.5 14.5 15 17l2.5-2.5"/></svg>
+      </button>
+      <div id="sort-menu" class="menu menu-list menu-up" hidden>
+        <button data-sort="found" class="checked">Page order</button>
+        <button data-sort="largest">Largest first</button>
+        <button data-sort="smallest">Smallest first</button>
+        <button data-sort="wide">Widest first</button>
+        <button data-sort="tall">Tallest first</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- selection pill -->
+  <div id="selection-bar" class="selection-bar" hidden>
+    <span id="sel-count">Select images</span>
+    <button id="sel-all">Select all</button>
+    <span class="sep"></span>
+    <button id="sel-download">Download</button>
+    <button id="sel-copy">Copy links</button>
+    <button id="sel-atlas" class="atlas-btn"><img src="icons/atlas.png" alt="" class="atlas-icon">Add to Atlas</button>
+    <span class="sep"></span>
+    <button id="sel-clear" class="sel-x" title="Cancel (Esc)">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- short notices, top centre under the header -->
+  <div class="notice-wrap">
+    <div id="notice" class="notice" hidden>
+      <span id="notice-icon" class="toast-icon"></span>
+      <span id="notice-text"></span>
+    </div>
+  </div>
+
+  <!-- progress toast -->
+  <div id="toast" class="toast" hidden>
+    <span id="toast-icon" class="toast-icon"></span>
+    <div class="toast-body">
+      <div id="toast-title"></div>
+      <div class="toast-sub">
+        <span id="toast-sub"></span>
+        <span id="toast-info" class="toast-info" hidden>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.9v.1"/></svg>
+          <div id="toast-pop" class="toast-pop"></div>
+        </span>
+      </div>
+      <button id="toast-action" class="toast-action" hidden></button>
+    </div>
+    <button id="toast-close" class="toast-close" title="Close">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- quick look -->
+  <div id="viewer" class="viewer" hidden>
+    <div id="viewer-bg" class="viewer-bg"></div>
+    <div id="viewer-card" class="viewer-card"><img id="viewer-img" alt=""></div>
+    <div class="viewer-chrome">
+    <div id="viewer-bar" class="viewer-bar">
+      <div class="viewer-info">
+        <div id="viewer-title"></div>
+        <div id="viewer-meta" class="muted"></div>
+      </div>
+      <div class="viewer-actions">
+        <button id="viewer-select" class="pill">Select</button>
+        <button id="viewer-download" class="pill">Download</button>
+        <button id="viewer-open" class="pill">Open original</button>
+        <button id="viewer-atlas" class="pill atlas-btn"><img src="icons/atlas.png" alt="" class="atlas-icon">Add to Atlas</button>
+      </div>
+    </div>
+    <button id="viewer-prev" class="viewer-nav prev" title="Previous (←)">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4l-6 6 6 6"/></svg>
+    </button>
+    <button id="viewer-next" class="viewer-nav next" title="Next (→)">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4l6 6-6 6"/></svg>
+    </button>
+    <button id="viewer-close" class="viewer-close" title="Close (Esc)">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>
+    </button>
+    </div>
+  </div>
+
+  <script src="extract.js"></script>
+  <script src="gallery.js"></script>
+</body>
+</html>
