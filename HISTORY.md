@@ -108,6 +108,13 @@ Debugging in Dia, in order:
 - Pushed to https://github.com/Push3in/Image-Crawler (`main`).
 - An article about the design process lives in Claude Docs: "Designing Image Crawler: from a utility to an Atlas-style gallery".
 
+## 9. New app icon and empty states (2026-10-20)
+
+- New red app icon designed by Yan (1024px master, `Icon-Final-V2.png`). Exported at 16, 32, 48, 96 and 128px with Core Image Lanczos plus light luminance sharpening (0.6 at 16px down to 0.15 at 128px). 32 and 96 were added to the manifest because Retina screens draw the 16px toolbar and 48px extensions-page icons at 2×; without them the browser scaled other sizes and blurred them. 16px stays a little soft; only a simplified, pixel-snapped redraw would fix that.
+- Empty state centred under the header, styled after Atlas's own ("Your Inbox Is Empty"): Title Case title, one plain sentence. Icon 40px tall in `#b4b4b4`, 16px gap; title 17px/600; message 13px `#8a8a8a`, max 300px. Springs in with `SPRING_OPEN`.
+- Four states: Can't Read This Page (`image-slash`), No Images Found (`image`), No Matching Images (`bars-filter` in a hand-drawn circle at Thin's 16-unit weight), Page Closed (`rectangle-xmark`).
+- Icons are Font Awesome Pro 7.3.1 **Thin** (Regular and Light felt too heavy), inlined as paths in `EMPTY_ICONS`. Pro is downloaded from `npm.fontawesome.com` with Yan's package token, which is not stored in the repo.
+
 ## Still to do
 
 1. Put a real contact email in `store/privacy-policy.html` and host it publicly (e.g. GitHub Pages: Settings → Pages → `main`).

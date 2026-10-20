@@ -21,6 +21,7 @@ const els = {
   scroller: $('scroller'),
   gallery: $('gallery'),
   empty: $('empty'),
+  emptyIcon: $('empty-icon'),
   emptyTitle: $('empty-title'),
   emptyText: $('empty-text'),
   shuffle: $('shuffle'),
@@ -494,23 +495,45 @@ function updateCounts() {
   updateEmptyState();
 }
 
+// Font Awesome Pro 7.3.1 Thin icons (fontawesome.com, Pro license): [viewBox, path].
+const EMPTY_ICONS = {
+  photo: ['0 0 448 512', 'M384 48c26.5 0 48 21.5 48 48l0 320c0 26.5-21.5 48-48 48L64 464c-26.5 0-48-21.5-48-48L16 96c0-26.5 21.5-48 48-48l320 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm64 96a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm0 80a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm130 24.2c2.8-5.1 8.2-8.2 14-8.2s11.2 3.2 14 8.2l80 144c2.8 5 2.7 11-.2 15.9S357.7 400 352 400L96 400c-5.9 0-11.3-3.2-14.1-8.5s-2.5-11.5 .8-16.4l64-96c2.6-3.9 6.8-6.5 11.4-7s9.3 1 12.7 4.1l34 31.4c1.8 1.7 4.3 2.4 6.7 2s4.5-1.9 5.7-4L258 232.2zM272 208c-11.6 0-22.3 6.3-28 16.5l-35.8 64.5-26.5-24.5c-6.9-6.4-16.2-9.4-25.5-8.3s-17.6 6.2-22.8 14l-64 96c-6.5 9.8-7.2 22.4-1.6 32.9S84.2 416 96 416l256 0c11.3 0 21.8-6 27.6-15.8s5.9-21.9 .4-31.8l-80-144c-5.6-10.2-16.4-16.5-28-16.5z'], // image
+  blocked: ['0 0 576 512', 'M13.7-29.8c-3.1-3.1-8.2-3.1-11.3 0s-3.1 8.2 0 11.3l560 560c3.1 3.1 8.2 3.1 11.3 0s3.1-8.2 0-11.3l-75.1-75.1C507 444.4 512 430.8 512 416l0-320c0-35.3-28.7-64-64-64L128 32c-14.8 0-28.4 5-39.2 13.4L13.7-29.8zm86.6 86.6c7.8-5.6 17.4-8.8 27.8-8.8l320 0c26.5 0 48 21.5 48 48l0 320c0 10.3-3.3 19.9-8.8 27.8l-43.6-43.6c5.7-9.8 5.9-21.8 .4-31.7l-80-144c-5.6-10.2-16.4-16.5-28-16.5s-22.3 6.3-28 16.5l-14.3 25.8-62.5-62.5c5.6-7.8 8.8-17.4 8.8-27.8 0-26.5-21.5-48-48-48-10.3 0-19.9 3.3-27.8 8.8l-64-64zM431.5 388.1l-126-126 16.6-29.8c2.8-5.1 8.2-8.2 14-8.2s11.2 3.2 14 8.2l80 144c2 3.7 2.5 7.9 1.5 11.8zM219.6 176.2l-43.8-43.8c4.8-2.8 10.3-4.4 16.2-4.4 17.7 0 32 14.3 32 32 0 5.9-1.6 11.4-4.4 16.2zM368.8 416l-16-16-192.8 0c-5.9 0-11.3-3.2-14.1-8.5s-2.5-11.5 .8-16.4l64-96c2.6-3.9 6.8-6.5 11.4-7 .9-.1 1.8-.1 2.7-.1l-13.4-13.4c-5.6 2.4-10.5 6.4-14 11.7l-64 96c-6.5 9.8-7.2 22.4-1.6 32.9S148.2 416 160 416l208.8 0zM80 416l0-288.8-16-16 0 304.8c0 35.3 28.7 64 64 64l304.8 0-16-16-288.8 0c-26.5 0-48-21.5-48-48z'], // image-slash
+  closed: ['0 0 512 512', 'M64 80c-26.5 0-48 21.5-48 48l0 256c0 26.5 21.5 48 48 48l384 0c26.5 0 48-21.5 48-48l0-256c0-26.5-21.5-48-48-48L64 80zM0 128C0 92.7 28.7 64 64 64l384 0c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 128zm162.3 34.3c3.1-3.1 8.2-3.1 11.3 0l82.3 82.3 82.3-82.3c3.1-3.1 8.2-3.1 11.3 0s3.1 8.2 0 11.3l-82.3 82.3 82.3 82.3c3.1 3.1 3.1 8.2 0 11.3s-8.2 3.1-11.3 0l-82.3-82.3-82.3 82.3c-3.1 3.1-8.2 3.1-11.3 0s-3.1-8.2 0-11.3l82.3-82.3-82.3-82.3c-3.1-3.1-3.1-8.2 0-11.3z'], // rectangle-xmark
+  // bars-filter inside a circle, drawn at Thin's 16-unit line weight.
+  filter: ['0 0 512 512', 'M256 0a256 256 0 1 1 0 512a256 256 0 1 1 0-512zM256 16a240 240 0 1 0 0 480a240 240 0 1 0 0-480zM128 168h256a8 8 0 0 1 0 16H128a8 8 0 0 1 0-16zM176 248h160a8 8 0 0 1 0 16H176a8 8 0 0 1 0-16zM224 328h64a8 8 0 0 1 0 16h-64a8 8 0 0 1 0-16z'], // bars-filter + circle
+};
+let emptyKey = '';
+
 function updateEmptyState() {
   const loading = state.scanning || probing > 0 || probeQueue.length > 0;
-  let title = '';
-  let text = '';
+  let empty = null;
   if (state.scanError) {
-    title = "Can't read this page";
-    text = state.scanError;
+    empty = state.scanError;
   } else if (!state.items.length && !loading) {
-    title = 'No images found';
-    text = 'Try “Scroll page to load more” or “Crawl site”.';
+    empty = {
+      icon: 'photo',
+      title: 'No Images Found',
+      text: 'This page doesn’t seem to have any. Try “Scroll page to load more” or “Crawl site” to look further.',
+    };
   } else if (state.items.length && !state.visible.length) {
-    title = 'Nothing matches';
-    text = 'Try a smaller minimum size or another type.';
+    empty = { icon: 'filter', title: 'No Matching Images', text: 'Try a smaller minimum size or another file type.' };
   }
-  els.empty.hidden = !title;
-  els.emptyTitle.textContent = title;
-  els.emptyText.textContent = text;
+  const key = empty ? empty.title + empty.text : '';
+  if (key === emptyKey) return;
+  emptyKey = key;
+  els.empty.hidden = !empty;
+  if (!empty) return;
+  const [viewBox, path] = EMPTY_ICONS[empty.icon];
+  els.emptyIcon.setAttribute('viewBox', viewBox);
+  els.emptyIcon.innerHTML = `<path d="${path}"/>`;
+  els.emptyTitle.textContent = empty.title;
+  els.emptyText.textContent = empty.text;
+  // Springs in like the notice, a touch softer.
+  els.empty.animate(
+    [{ opacity: 0, transform: 'translateY(8px) scale(0.97)' }, { opacity: 1, transform: 'none' }],
+    { duration: SPRING_OPEN.duration, easing: SPRING_OPEN.easing },
+  );
 }
 
 const selectedItems = () => state.visible.filter((i) => i.selected);
@@ -697,7 +720,11 @@ async function loadSource() {
     return true;
   } catch {
     els.pageTitle.textContent = 'Page closed';
-    state.scanError = 'The original tab was closed. Open the page again and click the extension icon.';
+    state.scanError = {
+      icon: 'closed',
+      title: 'Page Closed',
+      text: 'The tab these images came from was closed. Open the page again and click Image Crawler.',
+    };
     updateEmptyState();
     return false;
   }
@@ -729,8 +756,12 @@ async function scanSource({ scroll = false } = {}) {
   } catch (err) {
     hideNotice();
     state.scanError = /cannot be scripted|Cannot access|chrome:\/\//i.test(err.message)
-      ? 'Chrome doesn’t allow extensions to read this kind of page.'
-      : err.message;
+      ? {
+          icon: 'blocked',
+          title: 'Can’t Read This Page',
+          text: 'Browsers don’t let extensions see pages like settings, new tabs or the Web Store. Try it on a regular website.',
+        }
+      : { icon: 'blocked', title: 'Can’t Read This Page', text: err.message };
   } finally {
     state.scanning = false;
     updateEmptyState();

@@ -31,7 +31,7 @@ Bump `version` in `manifest.json`, then from this folder:
 
 ```sh
 rm -f dist/image-crawler-<version>.zip
-zip -q dist/image-crawler-<version>.zip manifest.json background.js extract.js gallery.html gallery.css gallery.js icons/icon16.png icons/icon48.png icons/icon128.png icons/atlas.png
+zip -q dist/image-crawler-<version>.zip manifest.json background.js extract.js gallery.html gallery.css gallery.js icons/icon16.png icons/icon32.png icons/icon48.png icons/icon96.png icons/icon128.png icons/atlas.png
 ```
 
 Only those files go in the zip (not `atlas-bridge/`, `store/` or these notes).

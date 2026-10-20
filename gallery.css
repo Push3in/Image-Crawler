@@ -273,14 +273,19 @@ kbd { font: inherit; color: var(--muted); }
 
 .empty {
   position: fixed;
-  inset: 0;
-  display: grid;
-  place-content: center;
+  inset: 72px 0 0; /* centred in the gallery, below the header */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32px 40px;
   text-align: center;
   pointer-events: none;
 }
-.empty p { margin: 2px 0; }
-#empty-title { font-size: 15px; font-weight: 600; }
+.empty p { margin: 0; }
+#empty-icon { width: 44px; height: 40px; margin-bottom: 16px; color: #b4b4b4; fill: currentColor; stroke: none; }
+#empty-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+#empty-text { margin-top: 6px; max-width: 300px; font-size: 13px; line-height: 1.45; color: #8a8a8a; }
 
 /* ---------- floating controls ---------- */
 
