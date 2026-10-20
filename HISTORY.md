@@ -132,7 +132,7 @@ Debugging in Dia, in order:
 
 ## Still to do
 
-1. Upload `dist/image-grab-2.2.0.zip` to the Chrome Web Store, filling the listing from `store/listing.md`.
+1. ~~Upload `dist/image-grab-2.2.0.zip` to the Chrome Web Store.~~ Submitted for review on 2026-10-20 (in-depth review expected because of the all-sites host permission).
 2. After publishing, add the store ID to `STORE_IDS` in `atlas-bridge/install_hosts.py` and push, so the one-line setup works for store users.
 3. Decide whether to keep Atlas's icon in a public listing.
 4. Replace the Studio Display frame and Windows wallpaper in the screenshots (other companies' designs).
