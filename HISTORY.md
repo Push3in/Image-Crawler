@@ -125,7 +125,7 @@ Debugging in Dia, in order:
 
 ## Still to do
 
-1. Put a real contact email in `store/privacy-policy.html` and host it publicly (e.g. GitHub Pages: Settings → Pages → `main`).
+1. Turn on GitHub Pages (Settings → Pages → `main` / root) so the privacy policy and Atlas setup page are public. The policy's contact email is filled in.
 2. Upload `dist/image-crawler-2.1.0.zip` to the Chrome Web Store, filling the listing from `store/listing.md`.
 3. After publishing, add the store ID to `STORE_IDS` in `atlas-bridge/install_hosts.py` and push, so the one-line setup works for store users.
 4. Decide whether to keep Atlas's icon in a public listing.
