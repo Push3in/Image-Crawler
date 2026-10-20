@@ -1,6 +1,6 @@
 #!/bin/sh
 # Registers the Atlas bridge with your Chromium-based browsers (Chrome, Dia,
-# Arc, Brave, Edge…) so Image Crawler can send images to Atlas.
+# Arc, Brave, Edge…) so Image Grab can send images to Atlas.
 # Run once:  sh atlas-bridge/install.sh
 # Store copy: sh atlas-bridge/install.sh --id <extension id from the store>
 # Undo with: sh atlas-bridge/install.sh --uninstall
@@ -47,4 +47,4 @@ chmod +x "$LAUNCHER"
 "$PYTHON" -I -B "$APP/atlas_bridge.py" --cache-token
 
 "$PYTHON" -I -B "$SRC/install_hosts.py" "$LAUNCHER" "$@"
-echo "Done. Try Add to Atlas (reload Image Crawler first if you just changed it)."
+echo "Done. Try Add to Atlas (reload Image Grab first if you just changed it)."

@@ -1,4 +1,4 @@
-"""Image Crawler -> Atlas bridge (Chrome native messaging host).
+"""Image Grab -> Atlas bridge (Chrome native messaging host).
 
 Atlas refuses requests that come from a browser, so the extension can't call
 it directly. Chrome starts this script instead and talks to it over stdin /

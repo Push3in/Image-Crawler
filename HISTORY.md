@@ -1,4 +1,4 @@
-# Image Crawler: project history
+# Image Grab (formerly Image Crawler): project history
 
 Everything built so far, in order, with the decisions and the values chosen. Built on 2026-10-19 in one Claude Code session by Yan (designer, giving feedback) and Claude (writing the code).
 
@@ -105,7 +105,7 @@ Debugging in Dia, in order:
 - Type polish: buttons 14px (pills, selection bar, primary, notice); all `font-weight: 500` → 600. Base text 13px, captions 12px. Font stack: `-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif` (SF Pro on Mac).
 - `store/listing.md` (description, category, single purpose, permission justifications, data-use answers), `store/privacy-policy.html` (contact is a placeholder `YOUR-EMAIL@example.com`), `store/screenshots/` (3 × 1280×800, generated art on a fake "Studio North" site), `dist/image-crawler-2.1.0.zip` (10 files).
 - Chrome Web Store: new developer accounts can publish 2 extensions at first.
-- Pushed to https://github.com/Push3in/Image-Crawler (`main`).
+- Pushed to https://github.com/Push3in/Image-Grab (`main`).
 - An article about the design process lives in Claude Docs: "Designing Image Crawler: from a utility to an Atlas-style gallery".
 
 ## 9. New app icon and empty states (2026-10-20)
@@ -119,13 +119,20 @@ Debugging in Dia, in order:
 
 - Decided on one store listing, not a separate Atlas version: the Atlas buttons already hide without the helper, Google rejects near-duplicate extensions, and new accounts get only 2 extensions.
 - `atlas-bridge/get.sh`: one-line setup (`curl … get.sh | sh`) that downloads the helper files from GitHub `main` into a temp folder and runs `install.sh`.
-- `store/atlas-setup.html`: setup page (same style as the privacy policy) with copy buttons for install and uninstall, meant for GitHub Pages at `https://push3in.github.io/Image-Crawler/store/atlas-setup.html`.
+- `store/atlas-setup.html`: setup page (same style as the privacy policy) with copy buttons for install and uninstall, meant for GitHub Pages at `https://push3in.github.io/Image-Grab/store/atlas-setup.html`.
 - Gallery: More menu ends with "Use with Atlas…" (opens that page), hidden once the helper answers (`.has-atlas .atlas-setup`). Store description has a "Works with Atlas (optional)" section linking to it.
 - Store installs only get a working helper once their ID is in `STORE_IDS` (`install_hosts.py`), since `get.sh` can't find them by folder path.
 
+## 11. Store graphics, Figma screen flows and the new name (version 2.2.0)
+
+- Store graphics designed by Yan in the Figma file "Image Crawler - Icons" (page Design): small promo tile 440×280, marquee 1400×560, four 1280×800 screenshots (the store only accepts 1280×800 or 640×400; 1200×800 was widened by 40 px a side). Exported as JPEG without alpha to `store/promo-tile-440x280.jpg`, `store/marquee-1400x560.jpg` and `store/screenshots/1-gallery.jpg`…`4-select.jpg`. Headlines use Yan's local font Timeless Sans, which Figma's plugin API can't load, so Yan edits that text by hand.
+- Page "Screen flows" in the same file: a components board (pills, tiles, menus, notices, toasts, selection bar, empty states, header) and 18 screens at 1200×800 in five flows (browse, crawl, select and download, preview, empty states), filled with Yan's free AI photos. Text is Inter: SF Pro can't be measured through the API (text came out zero width). WebP uploads render blank, so photos were uploaded as JPEG.
+- Renamed to **Image Grab** (Glean was considered and dropped: it's an existing company's extension). Visible name, download folder (`Downloads/Image Grab/<site>/`), store text, privacy policy and setup page changed. Internal IDs stay as they were so existing setups keep working: helper `com.imagecrawler.atlas`, `ImageCrawlerAtlas` folder, `ImageCrawler-Atlas.log`, overlay ID. `install_hosts.py` matches both names. The GitHub repo was then renamed to `Push3in/Image-Grab`; GitHub redirects the old repo and raw URLs but not the Pages site, so every link now uses `Image-Grab` (Pages: `https://push3in.github.io/Image-Grab/`). The local folder was renamed to `Image-Grab` too; the unpacked extension ID comes from its path, so after a folder rename load it unpacked again and re-run `install.sh`.
+- `dist/image-grab-2.2.0.zip` built.
+
 ## Still to do
 
-1. Turn on GitHub Pages (Settings → Pages → `main` / root) so the privacy policy and Atlas setup page are public. The policy's contact email is filled in.
-2. Upload `dist/image-crawler-2.1.0.zip` to the Chrome Web Store, filling the listing from `store/listing.md`.
-3. After publishing, add the store ID to `STORE_IDS` in `atlas-bridge/install_hosts.py` and push, so the one-line setup works for store users.
-4. Decide whether to keep Atlas's icon in a public listing.
+1. Upload `dist/image-grab-2.2.0.zip` to the Chrome Web Store, filling the listing from `store/listing.md`.
+2. After publishing, add the store ID to `STORE_IDS` in `atlas-bridge/install_hosts.py` and push, so the one-line setup works for store users.
+3. Decide whether to keep Atlas's icon in a public listing.
+4. Replace the Studio Display frame and Windows wallpaper in the screenshots (other companies' designs).

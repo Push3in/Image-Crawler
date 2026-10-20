@@ -1,4 +1,4 @@
-# Image Crawler
+# Image Grab (formerly Image Crawler)
 
 Chrome/Dia extension (Manifest V3) that shows every image on a page in an Atlas-style gallery overlay, with selection, downloads, site crawling and an optional "Add to Atlas" helper. The full history, decisions and values are in HISTORY.md:
 
@@ -8,11 +8,11 @@ Chrome/Dia extension (Manifest V3) that shows every image on a page in an Atlas-
 
 - Yan is a designer, not a developer. Explain in plain words, give exact values (px, radius, weights) when asked, and make small visual changes directly.
 - Yan browses with **Dia** (Chromium-based), not Chrome. Test assumptions against Dia.
-- After any change to the extension, tell Yan to click **Reload** on Image Crawler in Dia's extensions page.
+- After any change to the extension, tell Yan to click **Reload** on Image Grab in Dia's extensions page.
 
 ## Setting up on a new Mac
 
-1. `git clone https://github.com/Push3in/Image-Crawler.git`
+1. `git clone https://github.com/Push3in/Image-Grab.git`
 2. In Dia: extensions page → Developer mode → **Load unpacked** → this folder.
 3. For Add to Atlas: open Atlas once, then `sh atlas-bridge/install.sh`. The installer finds the extension's ID in each browser by itself; reload the extension afterwards.
 
@@ -30,8 +30,8 @@ Chrome/Dia extension (Manifest V3) that shows every image on a page in an Atlas-
 Bump `version` in `manifest.json`, then from this folder:
 
 ```sh
-rm -f dist/image-crawler-<version>.zip
-zip -q dist/image-crawler-<version>.zip manifest.json background.js extract.js gallery.html gallery.css gallery.js icons/icon16.png icons/icon32.png icons/icon48.png icons/icon96.png icons/icon128.png icons/atlas.png
+rm -f dist/image-grab-<version>.zip
+zip -q dist/image-grab-<version>.zip manifest.json background.js extract.js gallery.html gallery.css gallery.js icons/icon16.png icons/icon32.png icons/icon48.png icons/icon96.png icons/icon128.png icons/atlas.png
 ```
 
 Only those files go in the zip (not `atlas-bridge/`, `store/` or these notes).

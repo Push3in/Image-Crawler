@@ -723,7 +723,7 @@ async function loadSource() {
     state.scanError = {
       icon: 'closed',
       title: 'Page Closed',
-      text: 'The tab these images came from was closed. Open the page again and click Image Crawler.',
+      text: 'The tab these images came from was closed. Open the page again and click Image Grab.',
     };
     updateEmptyState();
     return false;
@@ -913,7 +913,7 @@ function renderDownloadToast() {
   showToast({
     icon: failed ? 'warn' : 'done',
     title: failed ? `${plural(done, 'image')} saved · ${failed} failed` : `${plural(done, 'image')} saved`,
-    sub: `Downloads/Image Crawler/${job.folderName}`,
+    sub: `Downloads/Image Grab/${job.folderName}`,
     rows,
     action: lastId ? { label: 'Show in folder', run: () => chrome.downloads.show(lastId) } : null,
     autoHide: 6000,
@@ -923,7 +923,7 @@ function renderDownloadToast() {
 async function downloadItems(items) {
   if (!items.length) return;
   const folderName = state.source.host.replace(/[^\w.-]+/g, '_') || 'images';
-  const folder = `Image Crawler/${folderName}`;
+  const folder = `Image Grab/${folderName}`;
   const job = items.map((item) => ({ item, name: rowName(item), status: 'Queued', id: null }));
   job.folderName = folderName;
   currentJob = job;
@@ -1000,7 +1000,7 @@ function talkToAtlas(message, onProgress) {
   return new Promise((resolve) => {
     // Missing until the extension is reloaded after the permission was added.
     if (typeof chrome.runtime.connectNative !== 'function') {
-      resolve({ type: 'error', error: 'Reload Image Crawler in your extensions page to finish setup' });
+      resolve({ type: 'error', error: 'Reload Image Grab in your extensions page to finish setup' });
       return;
     }
     let port;
@@ -1435,7 +1435,7 @@ els.closeOverlay.addEventListener('click', closeOverlay);
 // Add to Atlas only shows up for people who installed the local helper
 // (atlas-bridge/). A quick ping tells; without it the buttons stay hidden and
 // the More menu offers "Use with Atlas…", which opens the setup page.
-const ATLAS_SETUP_URL = 'https://push3in.github.io/Image-Crawler/store/atlas-setup.html';
+const ATLAS_SETUP_URL = 'https://push3in.github.io/Image-Grab/store/atlas-setup.html';
 talkToAtlas({ type: 'ping' }).then((reply) => {
   document.body.classList.toggle('has-atlas', reply.type === 'done');
 });

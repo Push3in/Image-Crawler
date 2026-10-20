@@ -4,7 +4,7 @@ Finds each browser's user data folder (the one holding "Local State" and a
 profile with extensions) under ~/Library/Application Support, so Chrome, Dia,
 Arc, Brave, Edge and friends are all covered without a hard-coded list.
 
-The helper is only offered to Image Crawler: the ID each browser gave this
+The helper is only offered to Image Grab: the ID each browser gave this
 folder when it was loaded unpacked (it's derived from the folder's path, so it
 stays the same across reloads). Load the extension first, then run this.
 
@@ -17,7 +17,8 @@ import os
 import sys
 
 NAME = "com.imagecrawler.atlas"
-EXTENSION_NAME = "Image Crawler"
+# "Image Crawler" was the name before 2.2.0; copies not yet reloaded still show it.
+EXTENSION_NAMES = ("Image Grab", "Image Crawler")
 # The Chrome Web Store ID, once published, so the store version is always
 # allowed. Store installs don't record a folder path to match on, and newer
 # browsers may not record the name either. get.sh (the one-line setup on the
@@ -52,7 +53,7 @@ def ids_for_this_extension(data_dir):
             if os.path.isabs(path) and os.path.abspath(path) == EXTENSION_DIR:
                 ids.add(ext_id)
             # Store installs: match by name when the profile records it.
-            elif (info.get("manifest") or {}).get("name") == EXTENSION_NAME:
+            elif (info.get("manifest") or {}).get("name") in EXTENSION_NAMES:
                 ids.add(ext_id)
     return ids
 
@@ -70,7 +71,7 @@ def write_host(host_dir, launcher, ids):
     with open(os.path.join(host_dir, NAME + ".json"), "w") as f:
         json.dump({
             "name": NAME,
-            "description": "Sends images from Image Crawler to Atlas",
+            "description": "Sends images from Image Grab to Atlas",
             "path": launcher,
             "type": "stdio",
             "allowed_origins": ["chrome-extension://%s/" % i for i in ids],
@@ -98,10 +99,10 @@ def main():
     for d in data_dirs:
         found = ids_for_this_extension(d)
         if found:
-            print("Found Image Crawler in %s: %s" % (os.path.relpath(d, SUPPORT), ", ".join(sorted(found))))
+            print("Found Image Grab in %s: %s" % (os.path.relpath(d, SUPPORT), ", ".join(sorted(found))))
         ids |= found
     if not ids:
-        print("Image Crawler isn't loaded in any browser yet. Load it, then run this again.")
+        print("Image Grab isn't loaded in any browser yet. Load it, then run this again.")
         return
     for host_dir in host_dirs:
         write_host(host_dir, launcher, sorted(ids))

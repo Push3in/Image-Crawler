@@ -1,11 +1,11 @@
-# Chrome Web Store listing: Image Crawler
+# Chrome Web Store listing: Image Grab
 
 Copy each section into the matching field in the Developer Dashboard.
 
 ## Store listing tab
 
 **Name** (from manifest.json, can't be changed here)
-Image Crawler
+Image Grab
 
 **Summary** (from manifest.json, 132 characters max)
 See every image on a page in a clean gallery, then pick the ones you want and download them.
@@ -20,7 +20,7 @@ English
 **Description**
 
 ```
-Image Crawler shows every image on the page you're viewing in one calm, distraction-free gallery, so you can find the ones you want and save them in a click.
+Image Grab shows every image on the page you're viewing in one calm, distraction-free gallery, so you can find the ones you want and save them in a click.
 
 Click the toolbar icon and a gallery opens right on top of the page. Images are laid out edge to edge at their real proportions, with their dimensions underneath, and the page behind is gently blurred.
 
@@ -39,23 +39,30 @@ BROWSE COMFORTABLY
 SAVE WHAT YOU NEED
 • Select images to download them in one go, or copy their links
 • Shift-click to select a range, ⌘A / Ctrl+A to select everything shown
-• Downloads go to Downloads/Image Crawler/<site name>, at original quality
+• Downloads go to Downloads/Image Grab/<site name>, at original quality
 • Live progress for every file
 
 WORKS WITH ATLAS (OPTIONAL)
-Use the Atlas image library on your Mac? Add the images you pick straight to it. One-time setup: https://push3in.github.io/Image-Crawler/store/atlas-setup.html
+Use the Atlas image library on your Mac? Add the images you pick straight to it. One-time setup: https://push3in.github.io/Image-Grab/store/atlas-setup.html
 
 PRIVATE BY DESIGN
-Image Crawler works entirely in your browser. It has no account, no analytics and no servers: nothing about you or the pages you visit is collected or sent anywhere.
+Image Grab works entirely in your browser. It has no account, no analytics and no servers: nothing about you or the pages you visit is collected or sent anywhere.
 ```
 
-**Screenshots** (1280×800, in this order)
-1. `screenshots/1-gallery.png`: the gallery open on a page
-2. `screenshots/2-select.png`: selecting images to download
-3. `screenshots/3-preview.png`: full-size preview
+**Screenshots** (1280×800, in this order), exported from the Figma file "Image Crawler - Icons", frames "Extension Mockup 1–4"
+1. `screenshots/1-gallery.jpg`: the gallery open on a page
+2. `screenshots/2-sizes.jpg`: filtering by minimum size
+3. `screenshots/3-preview.jpg`: full-size preview
+4. `screenshots/4-select.jpg`: selecting images to download
 
 **Store icon**
 `icons/icon128.png` from the extension (128×128).
+
+**Small promo tile**
+`promo-tile-440x280.jpg` (440×280), exported from the Figma file "Image Crawler - Icons", frame "Small promo tile 440x280".
+
+**Marquee promo tile**
+`marquee-1400x560.jpg` (1400×560), same Figma file, frame "Marquee Promo Title".
 
 **Visibility** (Distribution tab)
 Unlisted if it's mainly for you (only people with the link can install it), or Public.
@@ -67,14 +74,14 @@ Unlisted if it's mainly for you (only people with the link can install it), or P
 **Single purpose**
 
 ```
-Image Crawler finds the images on the web page the user is viewing (and, if the user asks, on linked pages of the same site), shows them in a gallery, and lets the user download the ones they choose.
+Image Grab finds the images on the web page the user is viewing (and, if the user asks, on linked pages of the same site), shows them in a gallery, and lets the user download the ones they choose.
 ```
 
 **Permission justifications**
 
 Host permission: `<all_urls>`
 ```
-Image Crawler can be opened on any website the user chooses, so it needs access to all sites. It uses this to read the image addresses on the current page when the user clicks the toolbar icon, to load those images into the gallery and the downloads, and, only when the user starts "Crawl site", to fetch linked pages of that site and find their images. It never runs on a page unless the user opens it there.
+Image Grab can be opened on any website the user chooses, so it needs access to all sites. It uses this to read the image addresses on the current page when the user clicks the toolbar icon, to load those images into the gallery and the downloads, and, only when the user starts "Crawl site", to fetch linked pages of that site and find their images. It never runs on a page unless the user opens it there.
 ```
 
 `scripting`
@@ -84,7 +91,7 @@ Used when the user clicks the toolbar icon to (1) show the gallery on top of the
 
 `downloads`
 ```
-Saves the images the user selects to their Downloads folder (in an "Image Crawler/<site>" subfolder) and shows download progress.
+Saves the images the user selects to their Downloads folder (in an "Image Grab/<site>" subfolder) and shows download progress.
 ```
 
 `clipboardWrite`
@@ -115,4 +122,4 @@ Host `store/privacy-policy.html` somewhere public (for example GitHub Pages or a
 
 ## Package
 
-Upload `dist/image-crawler-2.1.0.zip`.
+Upload `dist/image-grab-2.2.0.zip`.

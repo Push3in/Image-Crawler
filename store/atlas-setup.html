@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Use Image Crawler with Atlas</title>
+  <title>Use Image Grab with Atlas</title>
   <style>
     :root { --bg: #ffffff; --text: #18181b; --muted: #6b6b76; --rule: #e7e7ea; --code: #f4f4f5; --accent: #e5293b; }
     @media (prefers-color-scheme: dark) {
@@ -30,13 +30,13 @@
 <body>
 <main>
   <img class="app-icon" src="../icons/icon128.png" alt="">
-  <h1>Use Image Crawler with Atlas</h1>
+  <h1>Use Image Grab with Atlas</h1>
   <p class="lead">Send the images you pick straight into your Atlas library on your Mac. It takes one command, once.</p>
 
   <h2>What you need</h2>
   <ul>
     <li>A Mac with the <strong>Atlas</strong> app</li>
-    <li>Image Crawler installed in Chrome, Dia, Arc, Brave, Edge or another Chromium browser</li>
+    <li>Image Grab installed in Chrome, Dia, Arc, Brave, Edge or another Chromium browser</li>
   </ul>
 
   <h2>Set it up</h2>
@@ -44,21 +44,21 @@
     <li>Open <strong>Atlas</strong> and make sure Settings ▸ MCP ▸ <strong>Atlas MCP</strong> is on.</li>
     <li>Open <strong>Terminal</strong> (in Applications ▸ Utilities), paste this command and press Return:
       <div class="command">
-        <code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/Push3in/Image-Crawler/main/atlas-bridge/get.sh | sh</code>
+        <code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/Push3in/Image-Grab/main/atlas-bridge/get.sh | sh</code>
         <button type="button" data-copy="install-cmd">Copy</button>
       </div>
       <span class="muted">If your Mac asks to install developer tools (for Python), click Install, then run the command again.</span>
     </li>
-    <li>Close the Image Crawler gallery and open it again. <strong>Add to Atlas</strong> now appears when you select images.</li>
+    <li>Close the Image Grab gallery and open it again. <strong>Add to Atlas</strong> now appears when you select images.</li>
   </ol>
-  <p class="muted">Installed Image Crawler in another browser later? Run the same command again.</p>
+  <p class="muted">Installed Image Grab in another browser later? Run the same command again.</p>
 
   <h2>What the command does</h2>
-  <p>It installs a small helper in <code>~/Library/Application Support/ImageCrawlerAtlas</code> and tells your browsers that only Image Crawler may talk to it. When you click Add to Atlas, the extension hands the image addresses to the helper, and the helper asks Atlas to save them to your Inbox. Everything stays on your Mac. You can <a href="https://github.com/Push3in/Image-Crawler/tree/main/atlas-bridge">read the helper's code</a>.</p>
+  <p>It installs a small helper in <code>~/Library/Application Support/ImageCrawlerAtlas</code> and tells your browsers that only Image Grab may talk to it. When you click Add to Atlas, the extension hands the image addresses to the helper, and the helper asks Atlas to save them to your Inbox. Everything stays on your Mac. You can <a href="https://github.com/Push3in/Image-Grab/tree/main/atlas-bridge">read the helper's code</a>.</p>
 
   <h2>Remove it</h2>
   <div class="command">
-    <code id="uninstall-cmd">curl -fsSL https://raw.githubusercontent.com/Push3in/Image-Crawler/main/atlas-bridge/get.sh | sh -s -- --uninstall</code>
+    <code id="uninstall-cmd">curl -fsSL https://raw.githubusercontent.com/Push3in/Image-Grab/main/atlas-bridge/get.sh | sh -s -- --uninstall</code>
     <button type="button" data-copy="uninstall-cmd">Copy</button>
   </div>
 
@@ -70,7 +70,7 @@
   </ul>
 
   <hr>
-  <p class="muted">Image Crawler is not made by or affiliated with Atlas. <a href="privacy-policy.html">Privacy policy</a></p>
+  <p class="muted">Image Grab is not made by or affiliated with Atlas. <a href="privacy-policy.html">Privacy policy</a></p>
 </main>
 <script>
   document.querySelectorAll('[data-copy]').forEach((button) => {
