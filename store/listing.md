@@ -42,6 +42,9 @@ SAVE WHAT YOU NEED
 • Downloads go to Downloads/Image Crawler/<site name>, at original quality
 • Live progress for every file
 
+WORKS WITH ATLAS (OPTIONAL)
+Use the Atlas image library on your Mac? Add the images you pick straight to it. One-time setup: https://push3in.github.io/Image-Crawler/store/atlas-setup.html
+
 PRIVATE BY DESIGN
 Image Crawler works entirely in your browser. It has no account, no analytics and no servers: nothing about you or the pages you visit is collected or sent anywhere.
 ```

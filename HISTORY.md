@@ -115,9 +115,17 @@ Debugging in Dia, in order:
 - Four states: Can't Read This Page (`image-slash`), No Images Found (`image`), No Matching Images (`bars-filter` in a hand-drawn circle at Thin's 16-unit weight), Page Closed (`rectangle-xmark`).
 - Icons are Font Awesome Pro 7.3.1 **Thin** (Regular and Light felt too heavy), inlined as paths in `EMPTY_ICONS`. Pro is downloaded from `npm.fontawesome.com` with Yan's package token, which is not stored in the repo.
 
+## 10. One store version, with Atlas setup for store users
+
+- Decided on one store listing, not a separate Atlas version: the Atlas buttons already hide without the helper, Google rejects near-duplicate extensions, and new accounts get only 2 extensions.
+- `atlas-bridge/get.sh`: one-line setup (`curl … get.sh | sh`) that downloads the helper files from GitHub `main` into a temp folder and runs `install.sh`.
+- `store/atlas-setup.html`: setup page (same style as the privacy policy) with copy buttons for install and uninstall, meant for GitHub Pages at `https://push3in.github.io/Image-Crawler/store/atlas-setup.html`.
+- Gallery: More menu ends with "Use with Atlas…" (opens that page), hidden once the helper answers (`.has-atlas .atlas-setup`). Store description has a "Works with Atlas (optional)" section linking to it.
+- Store installs only get a working helper once their ID is in `STORE_IDS` (`install_hosts.py`), since `get.sh` can't find them by folder path.
+
 ## Still to do
 
 1. Put a real contact email in `store/privacy-policy.html` and host it publicly (e.g. GitHub Pages: Settings → Pages → `main`).
 2. Upload `dist/image-crawler-2.1.0.zip` to the Chrome Web Store, filling the listing from `store/listing.md`.
-3. After publishing, run `sh atlas-bridge/install.sh --id <store id>` (or add it to `STORE_IDS`).
+3. After publishing, add the store ID to `STORE_IDS` in `atlas-bridge/install_hosts.py` and push, so the one-line setup works for store users.
 4. Decide whether to keep Atlas's icon in a public listing.

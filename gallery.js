@@ -1311,6 +1311,7 @@ els.moreMenu.addEventListener('click', (e) => {
   closeMenus();
   if (action === 'rescan') scanSource();
   if (action === 'deep') scanSource({ scroll: true });
+  if (action === 'atlas-setup') chrome.tabs.create({ url: ATLAS_SETUP_URL });
   if (action === 'select-all') {
     setSelectMode(true);
     selectAll(true);
@@ -1432,7 +1433,9 @@ els.closeOverlay.addEventListener('click', closeOverlay);
 // ---------- Atlas availability ----------
 
 // Add to Atlas only shows up for people who installed the local helper
-// (atlas-bridge/). A quick ping tells; without it the buttons stay hidden.
+// (atlas-bridge/). A quick ping tells; without it the buttons stay hidden and
+// the More menu offers "Use with Atlas…", which opens the setup page.
+const ATLAS_SETUP_URL = 'https://push3in.github.io/Image-Crawler/store/atlas-setup.html';
 talkToAtlas({ type: 'ping' }).then((reply) => {
   document.body.classList.toggle('has-atlas', reply.type === 'done');
 });

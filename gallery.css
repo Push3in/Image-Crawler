@@ -345,6 +345,8 @@ kbd { font: inherit; color: var(--muted); }
 .selection-bar .sep { flex: none; width: 1px; height: 18px; margin: 0 4px; background: color-mix(in srgb, var(--ink-text) 20%, transparent); }
 .atlas-btn { display: none; align-items: center; gap: 6px; }
 .has-atlas .atlas-btn { display: inline-flex; }
+/* The "Use with Atlas…" setup link, only until the helper answers. */
+.has-atlas .atlas-setup { display: none; }
 .atlas-icon { width: 16px; height: 16px; border-radius: 4px; flex: none; }
 .selection-bar button:disabled { opacity: 0.35; cursor: default; background: none; }
 .selection-bar .sel-x { width: 32px; padding: 0; display: grid; place-items: center; color: var(--ink-muted); }

@@ -29,6 +29,7 @@ Select images, then **Add to Atlas** (in the selection bar, or in the full-size 
 Atlas refuses requests from browsers, so the extension goes through a small local helper in `atlas-bridge/`:
 
 - Set up once: `sh atlas-bridge/install.sh` (needs `python3`). Remove with `sh atlas-bridge/install.sh --uninstall`.
+- Store users without this folder: `curl -fsSL https://raw.githubusercontent.com/Push3in/Image-Crawler/main/atlas-bridge/get.sh | sh` (the setup page `store/atlas-setup.html` explains it; the gallery's More menu links to it until the helper is installed).
 - The helper reads your Atlas key from the library's `.mcp-token` file each time, so no key is stored in the extension. If Atlas isn't running it opens it in the background.
 - Only this extension may use the helper: the installer reads the extension's ID from each browser. For a copy installed from the Chrome Web Store, run `sh atlas-bridge/install.sh --id <store id>`.
 - The **Add to Atlas** buttons only appear when the helper is installed.

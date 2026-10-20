@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Use Image Crawler with Atlas</title>
+  <style>
+    :root { --bg: #ffffff; --text: #18181b; --muted: #6b6b76; --rule: #e7e7ea; --code: #f4f4f5; --accent: #e5293b; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) { --bg: #141416; --text: #ececf0; --muted: #9a9aa5; --rule: #2a2a30; --code: #1f1f23; }
+    }
+    :root[data-theme="dark"] { --bg: #141416; --text: #ececf0; --muted: #9a9aa5; --rule: #2a2a30; --code: #1f1f23; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main { max-width: 680px; margin: 0 auto; padding: 56px 16px 80px; }
+    .app-icon { width: 64px; height: 64px; display: block; margin-bottom: 20px; }
+    h1 { font-size: 30px; letter-spacing: -0.02em; margin: 0 0 8px; }
+    h2 { font-size: 18px; margin: 36px 0 8px; }
+    .lead { font-size: 18px; color: var(--muted); margin: 0; }
+    .muted { color: var(--muted); font-size: 14px; }
+    ol, ul { padding-left: 22px; }
+    li { margin: 6px 0; }
+    hr { border: none; border-top: 1px solid var(--rule); margin: 32px 0; }
+    code { font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code); padding: 1px 5px; border-radius: 5px; }
+    .command { display: flex; align-items: flex-start; gap: 8px; margin: 10px 0 4px; background: var(--code); border-radius: 12px; padding: 12px 12px 12px 16px; }
+    .command code { flex: 1; min-width: 0; padding: 4px 0; background: none; overflow-wrap: anywhere; }
+    .command button { flex: none; border: none; border-radius: 8px; padding: 6px 12px; background: var(--text); color: var(--bg); font: 600 14px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+<main>
+  <img class="app-icon" src="../icons/icon128.png" alt="">
+  <h1>Use Image Crawler with Atlas</h1>
+  <p class="lead">Send the images you pick straight into your Atlas library on your Mac. It takes one command, once.</p>
+
+  <h2>What you need</h2>
+  <ul>
+    <li>A Mac with the <strong>Atlas</strong> app</li>
+    <li>Image Crawler installed in Chrome, Dia, Arc, Brave, Edge or another Chromium browser</li>
+  </ul>
+
+  <h2>Set it up</h2>
+  <ol>
+    <li>Open <strong>Atlas</strong> and make sure Settings ▸ MCP ▸ <strong>Atlas MCP</strong> is on.</li>
+    <li>Open <strong>Terminal</strong> (in Applications ▸ Utilities), paste this command and press Return:
+      <div class="command">
+        <code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/Push3in/Image-Crawler/main/atlas-bridge/get.sh | sh</code>
+        <button type="button" data-copy="install-cmd">Copy</button>
+      </div>
+      <span class="muted">If your Mac asks to install developer tools (for Python), click Install, then run the command again.</span>
+    </li>
+    <li>Close the Image Crawler gallery and open it again. <strong>Add to Atlas</strong> now appears when you select images.</li>
+  </ol>
+  <p class="muted">Installed Image Crawler in another browser later? Run the same command again.</p>
+
+  <h2>What the command does</h2>
+  <p>It installs a small helper in <code>~/Library/Application Support/ImageCrawlerAtlas</code> and tells your browsers that only Image Crawler may talk to it. When you click Add to Atlas, the extension hands the image addresses to the helper, and the helper asks Atlas to save them to your Inbox. Everything stays on your Mac. You can <a href="https://github.com/Push3in/Image-Crawler/tree/main/atlas-bridge">read the helper's code</a>.</p>
+
+  <h2>Remove it</h2>
+  <div class="command">
+    <code id="uninstall-cmd">curl -fsSL https://raw.githubusercontent.com/Push3in/Image-Crawler/main/atlas-bridge/get.sh | sh -s -- --uninstall</code>
+    <button type="button" data-copy="uninstall-cmd">Copy</button>
+  </div>
+
+  <h2>Not working?</h2>
+  <ul>
+    <li>Make sure Atlas is open and Atlas MCP is on, then run the setup command again.</li>
+    <li>Quit and reopen your browser.</li>
+    <li>The helper writes what happened to <code>~/Library/Logs/ImageCrawler-Atlas.log</code>.</li>
+  </ul>
+
+  <hr>
+  <p class="muted">Image Crawler is not made by or affiliated with Atlas. <a href="privacy-policy.html">Privacy policy</a></p>
+</main>
+<script>
+  document.querySelectorAll('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(document.getElementById(button.dataset.copy).textContent);
+        button.textContent = 'Copied';
+      } catch {
+        button.textContent = 'Select and copy';
+      }
+      setTimeout(() => { button.textContent = 'Copy'; }, 1600);
+    });
+  });
+</script>
+</body>
+</html>

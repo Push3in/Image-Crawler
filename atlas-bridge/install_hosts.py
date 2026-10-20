@@ -19,7 +19,9 @@ import sys
 NAME = "com.imagecrawler.atlas"
 EXTENSION_NAME = "Image Crawler"
 # The Chrome Web Store ID, once published, so the store version is always
-# allowed. Store installs don't record a folder path to match on.
+# allowed. Store installs don't record a folder path to match on, and newer
+# browsers may not record the name either. get.sh (the one-line setup on the
+# Atlas setup page) relies on this.
 STORE_IDS = []
 SUPPORT = os.path.expanduser("~/Library/Application Support")
 EXTENSION_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
