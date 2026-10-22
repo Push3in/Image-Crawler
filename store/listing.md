@@ -32,7 +32,7 @@ FIND EVERY IMAGE
 
 BROWSE COMFORTABLY
 • Justified rows that adapt to your window, with zoom in and out
-• Filter by file type (JPG, PNG, GIF, WebP, AVIF, SVG, ICO) and minimum size
+• Filter by file type and minimum size
 • Sort by page order, largest, smallest, widest or tallest, or shuffle
 • Click any image to open it full size with a smooth spring animation; use the arrow keys to browse
 
