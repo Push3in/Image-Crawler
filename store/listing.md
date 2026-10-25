@@ -27,6 +27,7 @@ Click the toolbar icon and a gallery opens right on top of the page. Images are 
 FIND EVERY IMAGE
 • Regular images, high-resolution versions from srcset, lazy-loaded images, CSS backgrounds, video posters, share images and icons
 • Images inside frames on the page
+• Video files on the page too, with a preview that plays when you hover
 • "Scroll page to load more" for pages that only load images as you scroll
 • Crawl site: follow links from the page and collect images from each page it visits (stays on the same site by default, up to a page limit you choose)
 
@@ -37,7 +38,7 @@ BROWSE COMFORTABLY
 • Click any image to open it full size with a smooth spring animation; use the arrow keys to browse
 
 SAVE WHAT YOU NEED
-• Select images to download them in one go, or copy their links
+• Select images and videos to download them in one go, or copy their links
 • Shift-click to select a range, ⌘A / Ctrl+A to select everything shown
 • Downloads go to Downloads/Image Grab/<site name>, at original quality
 • Live progress for every file
@@ -74,7 +75,7 @@ Unlisted if it's mainly for you (only people with the link can install it), or P
 **Single purpose**
 
 ```
-Image Grab finds the images on the web page the user is viewing (and, if the user asks, on linked pages of the same site), shows them in a gallery, and lets the user download the ones they choose.
+Image Grab finds the images and video files on the web page the user is viewing (and, if the user asks, on linked pages of the same site), shows them in a gallery, and lets the user download the ones they choose.
 ```
 
 **Permission justifications**
@@ -91,7 +92,7 @@ Used when the user clicks the toolbar icon to (1) show the gallery on top of the
 
 `downloads`
 ```
-Saves the images the user selects to their Downloads folder (in an "Image Grab/<site>" subfolder) and shows download progress.
+Saves the images and videos the user selects to their Downloads folder (in an "Image Grab/<site>" subfolder) and shows download progress.
 ```
 
 `clipboardWrite`
@@ -122,4 +123,4 @@ Host `store/privacy-policy.html` somewhere public (for example GitHub Pages or a
 
 ## Package
 
-Upload `dist/image-grab-2.2.0.zip`.
+Upload `dist/image-grab-2.3.0.zip`.
