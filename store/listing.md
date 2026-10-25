@@ -22,7 +22,7 @@ English
 ```
 Image Grab shows every image on the page you're viewing in one calm, distraction-free gallery, so you can find the ones you want and save them in a click.
 
-Click the toolbar icon and a gallery opens right on top of the page. Images are laid out edge to edge at their real proportions, with their dimensions underneath, and the page behind is gently blurred.
+Click the toolbar icon and a gallery opens right on top of the page. Images and videos are laid out edge to edge at their real proportions, with their dimensions underneath, and the page behind is gently blurred.
 
 FIND EVERY IMAGE
 • Regular images, high-resolution versions from srcset, lazy-loaded images, CSS backgrounds, video posters, share images and icons
@@ -35,7 +35,7 @@ BROWSE COMFORTABLY
 • Justified rows that adapt to your window, with zoom in and out
 • Filter by file type and minimum size
 • Sort by page order, largest, smallest, widest or tallest, or shuffle
-• Click any image to open it full size with a smooth spring animation; use the arrow keys to browse
+• Click any image or video to open it full size with a smooth spring animation; use the arrow keys to browse
 
 SAVE WHAT YOU NEED
 • Select images and videos to download them in one go, or copy their links
