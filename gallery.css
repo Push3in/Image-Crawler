@@ -208,7 +208,7 @@ kbd { font: inherit; color: var(--muted); }
   background: var(--soft);
 }
 /* Only transform animates (GPU, no repaint). Slight overshoot feels springy. */
-.frame img {
+.frame .media {
   display: block;
   width: 100%;
   height: 100%;
@@ -218,14 +218,34 @@ kbd { font: inherit; color: var(--muted); }
 }
 /* Hand the hovered photo to the GPU before the click, so the first frame
    isn't spent setting that up. One tile at a time keeps memory low. */
-.select-mode .tile:hover .frame img { will-change: transform; }
+.select-mode .tile:hover .frame .media { will-change: transform; }
 
 /* Photos stay invisible over their grey placeholder until loaded and decoded,
    then fade in. Opacity only, so it's cheap. An animation rather than a
    transition, so hiding/showing for the preview doesn't fade again. */
-.frame img { opacity: 0; }
-.frame img.loaded { opacity: 1; animation: img-in 0.3s ease-out; }
-.frame img.settled { animation: none; }
+.frame .media { opacity: 0; }
+.frame .media.loaded { opacity: 1; animation: img-in 0.3s ease-out; }
+.frame .media.settled { animation: none; }
+
+/* Video length, bottom left, like Atlas. Hidden while selected (the video
+   shrinks away from the corner) and until the length is known. */
+.badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.badge:empty, .tile.selected .badge { opacity: 0; }
 @keyframes img-in { from { opacity: 0; } }
 
 
@@ -260,7 +280,7 @@ kbd { font: inherit; color: var(--muted); }
 
 /* No frame colour behind a selected photo: just the inset and the check. */
 .tile.selected .frame { background: transparent; }
-.tile.selected .frame img { transform: scale(0.9); }
+.tile.selected .frame .media { transform: scale(0.9); }
 .tile.selected .check {
   opacity: 1;
   transform: scale(1);
@@ -487,7 +507,7 @@ kbd { font: inherit; color: var(--muted); }
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   will-change: opacity;
 }
-#viewer-img {
+#viewer-img, #viewer-video {
   position: relative;
   display: block;
   width: 100%;
@@ -507,7 +527,7 @@ kbd { font: inherit; color: var(--muted); }
 .viewer.closing, .viewer.closing * { pointer-events: none !important; }
 
 /* The tile the preview came from shows as an empty slot while it's open. */
-.tile.ghost .frame img.loaded { opacity: 0; }
+.tile.ghost .frame .media.loaded, .tile.ghost .badge { opacity: 0; }
 
 .viewer-bar { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 16px; padding: 14px 40px 32px; }
 .viewer-info { flex: 1; min-width: 0; }

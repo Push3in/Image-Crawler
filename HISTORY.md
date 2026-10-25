@@ -130,6 +130,17 @@ Debugging in Dia, in order:
 - Renamed to **Image Grab** (Glean was considered and dropped: it's an existing company's extension). Visible name, download folder (`Downloads/Image Grab/<site>/`), store text, privacy policy and setup page changed. Internal IDs stay as they were so existing setups keep working: helper `com.imagecrawler.atlas`, `ImageCrawlerAtlas` folder, `ImageCrawler-Atlas.log`, overlay ID. `install_hosts.py` matches both names. The GitHub repo was then renamed to `Push3in/Image-Grab`; GitHub redirects the old repo and raw URLs but not the Pages site, so every link now uses `Image-Grab` (Pages: `https://push3in.github.io/Image-Grab/`). The local folder was renamed to `Image-Grab` too; the unpacked extension ID comes from its path, so after a folder rename load it unpacked again and re-run `install.sh`.
 - `dist/image-grab-2.2.0.zip` built.
 
+## 12. Videos (version 2.3.0, 2026-10-25)
+
+- Friends asked for Instagram Reels downloads. Decided against it: Reels, TikTok, YouTube, Vimeo, X, Reddit and Pinterest stream video in pieces through `blob:` addresses (or `.m3u8`/`.mpd` playlists), so there's no single file, and the store bans YouTube downloaders and is strict about saving from social platforms. Those videos still show only their cover image.
+- Videos that are one plain file are now found: `<video src>`, `<source src>`, links to `.mp4/.m4v/.webm/.mov/.ogv`, and `og:video` when it points to a file. Such a video's poster becomes its cover instead of a separate image tile.
+- Tiles: a `<video>` showing the poster or the frame at 0.1s (`#t=0.1`; the first frame is often black), with a duration badge bottom-left (11px/600, white on rgba(0,0,0,0.5), radius 6px, 8px inset; hidden while selected). Plays muted while hovered. Probes load metadata only; file size from HEAD only (no full download).
+- Detail view: plays with sound (falls back to muted), native controls added once the morph lands; clicking the video plays/pauses instead of closing. Meta line adds the length.
+- Type menu: Images and Videos under All types; MP4, WebM, MOV in the format list. Counts say "12 images and 2 videos".
+- The Select button names what's showing: "Select images", "Select videos", or "Select" when both are visible.
+- Tested in headless Chrome with a stubbed `chrome` API (gallery page plus a test page in an iframe, served with HTTP range support, which video seeking needs). Sample clips made with macOS `avconvert` (ffmpeg isn't installed).
+- `dist/image-grab-2.3.0.zip` built.
+
 ## Still to do
 
 1. ~~Upload `dist/image-grab-2.2.0.zip` to the Chrome Web Store.~~ Submitted for review on 2026-10-20 (in-depth review expected because of the all-sites host permission). Rejected on 2026-10-22 for "Keyword Spam" (violation "Yellow Argon"): the list of formats "JPG, PNG, GIF, WebP, AVIF, SVG, ICO" in the description. Removed it ("Filter by file type and minimum size"); resubmitted with the new description on 2026-10-22 (same 2.2.0 package). Avoid lists of formats, sites or keywords in store text.

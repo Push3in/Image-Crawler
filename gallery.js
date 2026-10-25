@@ -49,6 +49,7 @@ const els = {
   toastClose: $('toast-close'),
   viewer: $('viewer'),
   viewerImg: $('viewer-img'),
+  viewerVideo: $('viewer-video'),
   viewerCard: $('viewer-card'),
   viewerBg: $('viewer-bg'),
   viewerBar: $('viewer-bar'),
@@ -89,8 +90,8 @@ const state = {
   scanError: '',
 };
 
-const KNOWN_TYPES = new Set(['jpg', 'png', 'gif', 'webp', 'avif', 'svg', 'ico', 'bmp', 'tiff']);
-const TYPE_ALIASES = { jpeg: 'jpg', 'svg+xml': 'svg', 'x-icon': 'ico', 'vnd.microsoft.icon': 'ico', tif: 'tiff' };
+const KNOWN_TYPES = new Set(['jpg', 'png', 'gif', 'webp', 'avif', 'svg', 'ico', 'bmp', 'tiff', 'mp4', 'webm', 'mov', 'ogv']);
+const TYPE_ALIASES = { jpeg: 'jpg', 'svg+xml': 'svg', 'x-icon': 'ico', 'vnd.microsoft.icon': 'ico', tif: 'tiff', m4v: 'mp4' };
 
 // ---------- helpers ----------
 
@@ -120,6 +121,20 @@ const captionOf = (item) => (item.bytes ? `${dimsOf(item)} · ${bytesLabel(item.
 // How a photo is named in progress lists. Page file names are usually encoded
 // server ids, so size and type say more.
 const rowName = (item) => (item.width && item.type !== 'other' ? `${dimsOf(item)} · ${item.type.toUpperCase()}` : dimsOf(item));
+// Video length for the tile badge: "0:12", "4:05", "1:02:30".
+function durationLabel(seconds) {
+  if (!seconds || !Number.isFinite(seconds)) return '';
+  const s = Math.round(seconds);
+  const mmss = `${Math.floor((s % 3600) / 60)}:${String(s % 60).padStart(2, '0')}`;
+  return s >= 3600 ? `${Math.floor(s / 3600)}:${mmss.padStart(5, '0')}` : mmss;
+}
+// "12 images", "2 videos" or "12 images and 2 videos".
+function describe(items) {
+  const videos = items.filter((i) => i.kind === 'video').length;
+  const images = items.length - videos;
+  if (videos && images) return `${plural(images, 'image')} and ${plural(videos, 'video')}`;
+  return videos ? plural(videos, 'video') : plural(images, 'image');
+}
 const ratioOf = (item) => (item.width && item.height ? Math.min(Math.max(item.width / item.height, 0.3), 4) : 1);
 
 // ---------- collecting & probing ----------
@@ -132,6 +147,9 @@ function addFound(img, pageUrl) {
     width: 0,
     height: 0,
     type: typeOf(img.url),
+    kind: img.kind || 'image',
+    poster: img.poster || '',
+    duration: img.duration || 0,
     page: pageUrl,
     selected: false,
     el: null,
@@ -163,6 +181,10 @@ function pumpProbes() {
   while (probing < 8 && probeQueue.length) {
     const item = probeQueue.shift();
     probing++;
+    if (item.kind === 'video') {
+      probeVideo(item);
+      continue;
+    }
     const img = new Image();
     img.decoding = 'async';
     img.onload = () => {
@@ -181,6 +203,29 @@ function pumpProbes() {
     };
     img.src = item.url;
   }
+}
+
+// Videos only load their header (size and length), not the footage.
+function probeVideo(item) {
+  const video = document.createElement('video');
+  video.muted = true;
+  video.preload = 'metadata';
+  const finish = (ok) => {
+    probing--;
+    if (ok) {
+      item.width = video.videoWidth;
+      item.height = video.videoHeight;
+      if (Number.isFinite(video.duration)) item.duration = video.duration;
+      if (item.width) markReady(item);
+    }
+    video.removeAttribute('src');
+    video.load();
+    pumpProbes();
+    onProbeSettled();
+  };
+  video.addEventListener('loadedmetadata', () => finish(true), { once: true });
+  video.addEventListener('error', () => finish(false), { once: true });
+  video.src = item.url;
 }
 
 function onProbeSettled() {
@@ -258,6 +303,7 @@ function pumpThumbs() {
 }
 
 async function thumbnailFor(item) {
+  if (item.kind === 'video') return item.url;
   if (item.height <= THUMB_HEIGHT * 1.3 || item.type === 'gif' || item.type === 'svg') return item.url;
   try {
     // Extension pages can fetch any site (host permission), so no CORS taint.
@@ -290,6 +336,7 @@ function sizeFor(item) {
       const head = await fetch(item.url, { method: 'HEAD', credentials: 'include' });
       const length = Number(head.headers.get('content-length'));
       if (head.ok && length > 0 && !head.headers.get('content-encoding')) return setBytes(item, length);
+      if (item.kind === 'video') return; // not worth downloading a whole video to measure it
       const res = await fetch(item.url, { credentials: 'include', cache: 'force-cache' });
       if (res.ok) setBytes(item, (await res.blob()).size);
     } catch {}
@@ -305,6 +352,7 @@ function setBytes(item, bytes) {
 }
 
 function showTileImage(item, src) {
+  if (item.kind === 'video') return showTileVideo(item);
   item.thumb = src;
   const img = item.frameEl.querySelector('img');
   img.addEventListener('load', () => {
@@ -319,6 +367,33 @@ function showTileImage(item, src) {
   img.src = src;
 }
 
+// A video tile shows its poster, or else the frame at 0.1s (the very first
+// frame is often black). Only the header loads until you hover it.
+function showTileVideo(item) {
+  const video = item.frameEl.querySelector('video');
+  let shown = false;
+  const reveal = () => {
+    if (shown) return;
+    shown = true;
+    queueReveal(video);
+  };
+  video.addEventListener('loadeddata', reveal, { once: true });
+  // Some servers stop after the header; show the poster or first frame anyway.
+  video.addEventListener('loadedmetadata', () => {
+    if (!item.duration && Number.isFinite(video.duration)) {
+      item.duration = video.duration;
+      item.frameEl.querySelector('.badge').textContent = durationLabel(item.duration);
+    }
+    setTimeout(reveal, 400);
+  }, { once: true });
+  video.addEventListener('error', () => {
+    item.broken = true;
+    scheduleLayout();
+  }, { once: true });
+  if (item.poster) video.poster = item.poster;
+  video.src = item.url.includes('#') ? item.url : `${item.url}#t=0.1`;
+}
+
 function createTile(item) {
   const tile = document.createElement('div');
   tile.className = 'tile';
@@ -326,13 +401,29 @@ function createTile(item) {
 
   const frame = document.createElement('div');
   frame.className = 'frame';
-  const img = document.createElement('img');
-  img.decoding = 'async';
-  img.alt = item.alt;
-  img.draggable = false;
+  let media;
+  if (item.kind === 'video') {
+    media = document.createElement('video');
+    media.muted = true;
+    media.loop = true;
+    media.playsInline = true;
+    media.preload = 'metadata';
+  } else {
+    media = document.createElement('img');
+    media.decoding = 'async';
+    media.alt = item.alt;
+  }
+  media.className = 'media';
+  media.draggable = false;
   const check = document.createElement('span');
   check.className = 'check';
-  frame.append(img, check);
+  frame.append(media, check);
+  if (item.kind === 'video') {
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = durationLabel(item.duration);
+    frame.append(badge);
+  }
 
   const dims = document.createElement('div');
   dims.className = 'dims';
@@ -343,6 +434,11 @@ function createTile(item) {
   // Remembered so Space can open the photo under the cursor.
   tile.addEventListener('mouseenter', () => { state.hovered = item; });
   tile.addEventListener('mouseleave', () => { if (state.hovered === item) state.hovered = null; });
+  // Videos play silently while hovered.
+  if (item.kind === 'video') {
+    tile.addEventListener('mouseenter', () => { if (media.src) media.play().catch(() => {}); });
+    tile.addEventListener('mouseleave', () => media.pause());
+  }
 
   item.el = tile;
   item.frameEl = frame;
@@ -378,7 +474,9 @@ function setSelected(item, value) {
 function passes(item) {
   const f = state.filter;
   if (item.broken) return false;
-  if (f.type !== 'all' && item.type !== f.type) return false;
+  if (f.type === 'image' || f.type === 'video') {
+    if (item.kind !== f.type) return false;
+  } else if (f.type !== 'all' && item.type !== f.type) return false;
   if (item.width && Math.min(item.width, item.height) < f.minSize) return false;
   return true;
 }
@@ -490,7 +588,8 @@ function updateCounts() {
   const total = state.items.length;
   const shown = state.visible.length;
   const parts = [state.source.host];
-  if (total) parts.push(shown === total ? plural(total, 'image') : `${shown.toLocaleString()} of ${plural(total, 'image')}`);
+  const noun = state.items.some((i) => i.kind === 'video') ? 'item' : 'image';
+  if (total) parts.push(shown === total ? describe(state.items) : `${shown.toLocaleString()} of ${plural(total, noun)}`);
   els.pageMeta.textContent = parts.filter(Boolean).join(' · ');
   updateEmptyState();
 }
@@ -538,6 +637,14 @@ function updateEmptyState() {
 
 const selectedItems = () => state.visible.filter((i) => i.selected);
 
+// Names what's on screen: "Select images", "Select videos", or just "Select"
+// when both are showing.
+function selectLabel() {
+  const videos = state.visible.filter((i) => i.kind === 'video').length;
+  if (!videos) return 'Select images';
+  return videos === state.visible.length ? 'Select videos' : 'Select';
+}
+
 let barAnim = null;
 
 function updateSelection() {
@@ -547,7 +654,8 @@ function updateSelection() {
   const fromWidth = bar.hidden ? 0 : bar.getBoundingClientRect().width;
   barAnim?.cancel();
   bar.hidden = !state.selectMode;
-  els.selCount.textContent = count ? `${count.toLocaleString()} selected` : 'Select images';
+  els.selCount.textContent = count ? `${count.toLocaleString()} selected` : selectLabel();
+  if (!state.selectMode) els.selectMode.textContent = selectLabel();
   els.selAll.textContent = count && count === state.visible.length ? 'Deselect all' : 'Select all';
   els.selDownload.disabled = count === 0;
   els.selAtlas.disabled = count === 0;
@@ -572,7 +680,7 @@ function selectAll(value) {
 function setSelectMode(on) {
   state.selectMode = on;
   document.body.classList.toggle('select-mode', on);
-  els.selectMode.textContent = on ? 'Cancel' : 'Select images';
+  els.selectMode.textContent = on ? 'Cancel' : selectLabel();
   els.selectMode.classList.toggle('active', on);
   if (!on) {
     for (const item of state.items) setSelected(item, false);
@@ -748,11 +856,11 @@ async function scanSource({ scroll = false } = {}) {
     };
     // Some frames (like this overlay's own) can't be scripted; fall back to the main page.
     const results = await extract(target).catch(() => extract({ tabId: sourceTabId }));
-    let added = 0;
+    const added = [];
     for (const frame of results) {
-      for (const img of frame.result || []) if (addFound(img, state.source.url)) added++;
+      for (const img of frame.result || []) if (addFound(img, state.source.url)) added.push(img);
     }
-    showNotice({ text: added ? `Found ${plural(added, 'image')}` : 'No new images on this page' });
+    showNotice({ text: added.length ? `Found ${describe(added)}` : 'No new images on this page' });
   } catch (err) {
     hideNotice();
     state.scanError = /cannot be scripted|Cannot access|chrome:\/\//i.test(err.message)
@@ -902,17 +1010,18 @@ function renderDownloadToast() {
   if (!job) return;
   const done = job.filter((e) => e.status === 'Done').length;
   const failed = job.filter((e) => e.status === 'Failed').length;
+  const saved = job.filter((e) => e.status === 'Done').map((e) => e.item);
   const rows = job.map((e) => [e.name, e.status]);
   const finished = done + failed === job.length;
 
   if (!finished) {
-    showToast({ title: 'Downloading images', sub: `${done} of ${job.length} done`, rows });
+    showToast({ title: job.some((e) => e.item.kind === 'video') ? 'Downloading' : 'Downloading images', sub: `${done} of ${job.length} done`, rows });
     return;
   }
   const lastId = [...job].reverse().find((e) => e.id && e.status === 'Done')?.id;
   showToast({
     icon: failed ? 'warn' : 'done',
-    title: failed ? `${plural(done, 'image')} saved · ${failed} failed` : `${plural(done, 'image')} saved`,
+    title: failed ? `${describe(saved)} saved · ${failed} failed` : `${describe(saved)} saved`,
     sub: `Downloads/Image Grab/${job.folderName}`,
     rows,
     action: lastId ? { label: 'Show in folder', run: () => chrome.downloads.show(lastId) } : null,
@@ -956,9 +1065,10 @@ function flyToBar(items) {
     .slice(0, 16)
     .forEach((item, i) => {
       const r = item.frameEl.getBoundingClientRect();
-      const fly = document.createElement('img');
+      // A video flies as a copy of its tile (already loaded, so it shows at once).
+      const fly = item.kind === 'video' ? item.frameEl.querySelector('video').cloneNode() : document.createElement('img');
       fly.className = 'flyer';
-      fly.src = item.thumb || item.url;
+      if (item.kind !== 'video') fly.src = item.thumb || item.url;
       Object.assign(fly.style, { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px` });
       document.body.append(fly);
       const dx = tx - (r.left + r.width / 2);
@@ -1030,6 +1140,7 @@ function talkToAtlas(message, onProgress) {
 function renderAtlasToast(job, finished) {
   const done = job.filter((e) => e.status === 'Done').length;
   const failed = job.filter((e) => e.status === 'Failed').length;
+  const added = job.filter((e) => e.status === 'Done').map((e) => e.item);
   const rows = job.map((e) => [e.name, e.status]);
   if (!finished) {
     showToast({ title: 'Adding to Atlas', sub: `${done} of ${job.length} added`, rows });
@@ -1037,7 +1148,7 @@ function renderAtlasToast(job, finished) {
   }
   showToast({
     icon: failed ? 'warn' : 'done',
-    title: failed ? `${plural(done, 'image')} added · ${failed} failed` : `${plural(done, 'image')} added to Atlas`,
+    title: failed ? `${describe(added)} added · ${failed} failed` : `${describe(added)} added to Atlas`,
     sub: 'Inbox',
     rows,
     action: done ? { label: 'Show in Atlas', run: () => talkToAtlas({ type: 'reveal' }) } : null,
@@ -1126,7 +1237,7 @@ function fitRect(box, item) {
 }
 
 // Where the picture is drawn inside its tile (includes the selected inset).
-const tileImageRect = (item) => fitRect(item.frameEl.querySelector('img').getBoundingClientRect(), item);
+const tileImageRect = (item) => fitRect(item.frameEl.querySelector('.media').getBoundingClientRect(), item);
 
 // Resting spot for the preview: below the close button, above the info bar,
 // clear of the side arrows, and never more than 2× the image's real size.
@@ -1175,7 +1286,7 @@ function updateViewerLabels() {
   const item = viewerItem();
   els.viewerTitle.textContent = captionOf(item);
   sizeFor(item);
-  els.viewerMeta.textContent = [item.type === 'other' ? null : item.type.toUpperCase(), hostOf(item.url), `${state.viewerIndex + 1} of ${state.visible.length}`]
+  els.viewerMeta.textContent = [item.type === 'other' ? null : item.type.toUpperCase(), durationLabel(item.duration) || null, hostOf(item.url), `${state.viewerIndex + 1} of ${state.visible.length}`]
     .filter(Boolean)
     .join(' · ');
   els.viewerSelect.textContent = item.selected ? 'Selected ✓' : 'Select';
@@ -1186,9 +1297,39 @@ function setViewerItem(index) {
   const count = state.visible.length;
   viewerItem()?.el.classList.remove('ghost');
   state.viewerIndex = (index + count) % count;
-  els.viewerImg.src = viewerItem().url;
+  const item = viewerItem();
+  const isVideo = item.kind === 'video';
+  els.viewerImg.hidden = isVideo;
+  els.viewerVideo.hidden = !isVideo;
+  els.viewerVideo.pause();
+  if (isVideo) {
+    els.viewerVideo.poster = item.poster;
+    els.viewerVideo.src = item.url;
+    playViewerVideo();
+  } else {
+    els.viewerVideo.removeAttribute('src');
+    els.viewerVideo.removeAttribute('poster');
+    els.viewerImg.src = item.url;
+  }
   updateViewerLabels();
 }
+
+// Plays with sound when the browser allows it, otherwise starts muted.
+function playViewerVideo() {
+  const video = els.viewerVideo;
+  video.muted = false;
+  video.play().catch(() => {
+    video.muted = true;
+    video.play().catch(() => {});
+  });
+}
+
+// Video loaded enough to show a frame, or a short wait at most.
+const viewerVideoReady = () => new Promise((resolve) => {
+  if (els.viewerVideo.readyState >= 2) return resolve();
+  els.viewerVideo.addEventListener('loadeddata', resolve, { once: true });
+  setTimeout(resolve, 300);
+});
 
 async function openViewer(item) {
   const index = state.visible.indexOf(item);
@@ -1198,7 +1339,8 @@ async function openViewer(item) {
   state.viewerIndex = -1;
   setViewerItem(index);
   // The tile already loaded this URL, so decoding is near-instant.
-  await Promise.race([els.viewerImg.decode().catch(() => {}), sleep(150)]);
+  if (item.kind === 'video') await viewerVideoReady();
+  else await Promise.race([els.viewerImg.decode().catch(() => {}), sleep(150)]);
 
   const from = tileImageRect(item);
   els.viewer.hidden = false;
@@ -1208,6 +1350,8 @@ async function openViewer(item) {
   void els.viewer.offsetWidth;
   els.viewer.classList.add('open');
   await morph(from, to, SPRING_OPEN, 0, 1);
+  // Player controls only once it has landed, so they don't fly with it.
+  if (!viewerClosing && !els.viewer.hidden) els.viewerVideo.controls = true;
 }
 
 function stepViewer(delta) {
@@ -1240,6 +1384,8 @@ async function closeViewer() {
   // next photo can be opened without waiting for the spring to settle.
   els.viewer.classList.add('closing');
   const item = viewerItem();
+  els.viewerVideo.controls = false;
+  els.viewerVideo.pause();
   // Start from wherever it is right now, so closing mid-open doesn't jump.
   const from = els.viewerCard.getBoundingClientRect();
   const shadowNow = Number(getComputedStyle(els.viewerCard, '::before').opacity);
@@ -1255,6 +1401,8 @@ function finishClose() {
   viewerItem()?.el.classList.remove('ghost');
   els.viewer.hidden = true;
   els.viewer.classList.remove('closing');
+  els.viewerVideo.pause();
+  els.viewerVideo.controls = false;
   viewerAnim?.cancel();
   shadowAnim?.cancel();
   viewerAnim = null;
@@ -1359,6 +1507,8 @@ els.viewerNext.addEventListener('click', () => stepViewer(1));
 els.viewerClose.addEventListener('click', closeViewer);
 els.viewerBg.addEventListener('click', closeViewer);
 els.viewerCard.addEventListener('click', closeViewer);
+// Clicking a video plays or pauses it (native controls) instead of closing.
+els.viewerVideo.addEventListener('click', (e) => e.stopPropagation());
 els.viewerSelect.addEventListener('click', () => {
   const item = viewerItem();
   if (!state.selectMode) setSelectMode(true);

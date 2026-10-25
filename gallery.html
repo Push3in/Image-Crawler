@@ -24,6 +24,8 @@
         </button>
         <div id="type-menu" class="menu menu-list" hidden>
           <button data-value="all" class="checked">All types</button>
+          <button data-value="image">Images</button>
+          <button data-value="video">Videos</button>
           <hr>
           <button data-value="jpg">JPG</button>
           <button data-value="png">PNG</button>
@@ -32,6 +34,9 @@
           <button data-value="avif">AVIF</button>
           <button data-value="svg">SVG</button>
           <button data-value="ico">ICO</button>
+          <button data-value="mp4">MP4</button>
+          <button data-value="webm">WebM</button>
+          <button data-value="mov">MOV</button>
           <button data-value="other">Other</button>
         </div>
       </div>
@@ -165,7 +170,7 @@
   <!-- quick look -->
   <div id="viewer" class="viewer" hidden>
     <div id="viewer-bg" class="viewer-bg"></div>
-    <div id="viewer-card" class="viewer-card"><img id="viewer-img" alt=""></div>
+    <div id="viewer-card" class="viewer-card"><img id="viewer-img" alt=""><video id="viewer-video" playsinline loop hidden></video></div>
     <div class="viewer-chrome">
     <div id="viewer-bar" class="viewer-bar">
       <div class="viewer-info">

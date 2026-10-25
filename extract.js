@@ -4,6 +4,10 @@
 
 var IMAGE_EXT = /\.(jpe?g|png|gif|webp|avif|svg|bmp|ico|tiff?)(?:[?#]|$)/i;
 var SKIP_LINK_EXT = /\.(jpe?g|png|gif|webp|avif|svg|bmp|ico|tiff?|pdf|zip|rar|7z|gz|mp[34]|mov|webm|avi|wav|woff2?|ttf|css|js|json|xml)(?:[?#]|$)/i;
+// Single video files. Streams (.m3u8, .mpd) and blob: addresses aren't one
+// downloadable file, so those videos only contribute their poster.
+var VIDEO_EXT = /\.(mp4|m4v|webm|mov|ogv)(?:[?#]|$)/i;
+var STREAM_EXT = /\.(m3u8|mpd)(?:[?#]|$)/i;
 var LAZY_ATTRS = ['data-src', 'data-lazy-src', 'data-original', 'data-lazy', 'data-url', 'data-hi-res-src', 'data-full-src'];
 var LAZY_SRCSET_ATTRS = ['srcset', 'data-srcset', 'data-lazy-srcset'];
 
@@ -23,6 +27,9 @@ function extractImages(doc, baseUrl, isLivePage) {
     try { url = new URL(raw, baseUrl).href; } catch { return; }
     if (!/^https?:/i.test(url) && !/^data:image\//i.test(url)) return;
 
+    const kind = extra.kind || 'image';
+    if (kind === 'video' && (!/^https?:/i.test(url) || STREAM_EXT.test(url))) return;
+
     const width = extra.width || 0;
     const height = extra.height || 0;
     const prev = found.get(url);
@@ -32,10 +39,22 @@ function extractImages(doc, baseUrl, isLivePage) {
         prev.height = height;
       }
       if (!prev.alt && extra.alt) prev.alt = extra.alt;
+      if (!prev.poster && extra.poster) prev.poster = extra.poster;
+      if (!prev.duration && extra.duration) prev.duration = extra.duration;
       return;
     }
-    found.set(url, { url, source, width, height, alt: extra.alt || '' });
+    const item = { url, source, width, height, alt: extra.alt || '', kind };
+    if (kind === 'video') {
+      item.poster = extra.poster || '';
+      item.duration = extra.duration || 0;
+    }
+    found.set(url, item);
   }
+
+  const absolute = (raw) => {
+    try { return new URL(String(raw).trim(), baseUrl).href; } catch { return ''; }
+  };
+  const usableVideo = (raw) => raw && !String(raw).startsWith('blob:') && !STREAM_EXT.test(raw);
 
   function addSrcset(srcset, source) {
     if (!srcset) return;
@@ -65,12 +84,36 @@ function extractImages(doc, baseUrl, isLivePage) {
     for (const attr of LAZY_SRCSET_ATTRS) addSrcset(source.getAttribute(attr), 'srcset');
   }
 
-  for (const el of doc.querySelectorAll('video[poster]')) add(el.getAttribute('poster'), 'poster');
+  // A video with its own file shows up as a video (its poster becomes the
+  // tile's cover). Streamed videos (Instagram, YouTube…) keep just the poster.
+  for (const video of doc.querySelectorAll('video')) {
+    const poster = video.getAttribute('poster');
+    const sources = [video.getAttribute('src'), ...Array.from(video.querySelectorAll('source[src]'), (s) => s.getAttribute('src'))];
+    if (isLivePage && video.currentSrc) sources.unshift(video.currentSrc);
+    const src = sources.find(usableVideo);
+    if (!src) {
+      add(poster, 'poster');
+      continue;
+    }
+    const loaded = isLivePage && video.readyState >= 1;
+    add(src, 'video', {
+      kind: 'video',
+      poster: poster ? absolute(poster) : '',
+      width: loaded ? video.videoWidth : 0,
+      height: loaded ? video.videoHeight : 0,
+      duration: loaded && Number.isFinite(video.duration) ? video.duration : 0,
+    });
+  }
   for (const el of doc.querySelectorAll('input[type="image"][src]')) add(el.getAttribute('src'), 'img');
   for (const el of doc.querySelectorAll('image')) add(el.getAttribute('href') || el.getAttribute('xlink:href'), 'svg');
 
   for (const meta of doc.querySelectorAll('meta[property="og:image"], meta[property="og:image:url"], meta[name="twitter:image"], meta[itemprop="image"]')) {
     add(meta.getAttribute('content'), 'meta');
+  }
+  for (const meta of doc.querySelectorAll('meta[property="og:video"], meta[property="og:video:url"], meta[property="og:video:secure_url"], meta[name="twitter:player:stream"]')) {
+    const content = meta.getAttribute('content');
+    // og:video is often an embeddable player page, not a file.
+    if (VIDEO_EXT.test(content || '')) add(content, 'meta', { kind: 'video' });
   }
   for (const link of doc.querySelectorAll('link[rel~="icon"], link[rel="apple-touch-icon"], link[rel="image_src"]')) {
     add(link.getAttribute('href'), 'icon');
@@ -79,6 +122,7 @@ function extractImages(doc, baseUrl, isLivePage) {
   for (const a of doc.querySelectorAll('a[href]')) {
     const href = a.getAttribute('href');
     if (IMAGE_EXT.test(href)) add(href, 'link');
+    else if (VIDEO_EXT.test(href)) add(href, 'link', { kind: 'video' });
   }
 
   if (isLivePage) {
