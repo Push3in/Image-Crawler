@@ -139,11 +139,12 @@ Debugging in Dia, in order:
 - Type menu: Images and Videos under All types; MP4, WebM, MOV in the format list. Counts say "12 images and 2 videos".
 - The Select button names what's showing: "Select images", "Select videos", or "Select" when both are visible.
 - Tested in headless Chrome with a stubbed `chrome` API (gallery page plus a test page in an iframe, served with HTTP range support, which video seeking needs). Sample clips made with macOS `avconvert` (ffmpeg isn't installed).
-- `dist/image-grab-2.3.0.zip` built.
+- `dist/image-grab-2.3.0.zip` built. Store description, single purpose and `downloads` justification now mention videos (no formats or site names, after the keyword-spam rejection). Submitted to the Chrome Web Store as an update on 2026-10-25.
 
 ## Still to do
 
-1. ~~Upload `dist/image-grab-2.2.0.zip` to the Chrome Web Store.~~ Submitted for review on 2026-10-20 (in-depth review expected because of the all-sites host permission). Rejected on 2026-10-22 for "Keyword Spam" (violation "Yellow Argon"): the list of formats "JPG, PNG, GIF, WebP, AVIF, SVG, ICO" in the description. Removed it ("Filter by file type and minimum size"); resubmitted with the new description on 2026-10-22 (same 2.2.0 package). Avoid lists of formats, sites or keywords in store text.
-2. After publishing, add the store ID to `STORE_IDS` in `atlas-bridge/install_hosts.py` and push, so the one-line setup works for store users.
-3. Decide whether to keep Atlas's icon in a public listing.
-4. Replace the Studio Display frame and Windows wallpaper in the screenshots (other companies' designs).
+1. ~~Upload `dist/image-grab-2.2.0.zip` to the Chrome Web Store.~~ Submitted for review on 2026-10-20 (in-depth review expected because of the all-sites host permission). Rejected on 2026-10-22 for "Keyword Spam" (violation "Yellow Argon"): the list of formats "JPG, PNG, GIF, WebP, AVIF, SVG, ICO" in the description. Removed it ("Filter by file type and minimum size"); resubmitted with the new description on 2026-10-22 (same 2.2.0 package), then approved and published. Avoid lists of formats, sites or keywords in store text.
+2. ~~Publish 2.3.0 (videos).~~ Submitted for review on 2026-10-25.
+3. Now that it's published, add the store ID to `STORE_IDS` in `atlas-bridge/install_hosts.py` and push, so the one-line setup works for store users.
+4. Decide whether to keep Atlas's icon in a public listing.
+5. Replace the Studio Display frame and Windows wallpaper in the screenshots (other companies' designs).

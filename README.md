@@ -1,6 +1,6 @@
 # Image Grab
 
-A Chrome extension (Manifest V3) that shows every image on a page in a clean, Atlas-style gallery so you can pick the ones you want and download them.
+A Chrome extension (Manifest V3) that shows every image (and video file) on a page in a clean, Atlas-style gallery so you can pick the ones you want and download them.
 
 ## Install
 
@@ -14,10 +14,11 @@ A Chrome extension (Manifest V3) that shows every image on a page in a clean, At
 Clicking the icon opens the gallery as an overlay on the current page (a white panel, 95% wide and 92% tall) and scans the page. Close it with the ✕, Esc, clicking outside, or clicking the icon again. On pages Chrome doesn't let extensions touch (like `chrome://` pages) it opens in a tab instead and explains why.
 
 - **Gallery**: justified rows, each image at its real proportions, dimensions underneath.
-- **Click** an image to open it full size (it springs out of its tile). Use ← → to browse, Esc or click to close.
-- **Select images** (top right) switches to selection mode: click to tick images, **Shift-click** for a range, **⌘A** for all. The bottom bar then lets you Download or Copy links. **Cancel** or Esc leaves selection mode.
+- **Videos**: video files on the page (`<video>` sources and links to `.mp4`, `.webm`, `.mov`…) show as tiles with their length in the corner and play silently while you hover. Streamed videos (Instagram, TikTok, YouTube, Vimeo, X…) have no single file to download, so only their cover image appears.
+- **Click** an image to open it full size (it springs out of its tile). Use ← → to browse, Esc or click to close. Videos play with sound and player controls; clicking the video plays or pauses it, so close with the background, ✕ or Esc.
+- **Select images** (top right; it says **Select videos** when only videos are showing, and **Select** for a mix) switches to selection mode: click to tick images, **Shift-click** for a range, **⌘A** for all. The bottom bar then lets you Download or Copy links. **Cancel** or Esc leaves selection mode.
 - Downloads go to `Downloads/Image Grab/<site>/`, with live progress in the corner toast (hover the ⓘ for per-file status).
-- **Filters** (top): file type and minimum size (defaults to 300 px + to hide icons).
+- **Filters** (top): type (Images, Videos or a single format) and minimum size (defaults to 300 px + to hide icons).
 - **Crawl site**: follows links from the page and adds images from each page it visits.
 - **⋯ menu**: scan again, scroll the page to load lazy images, select all, clear.
 - **Bottom corners**: shuffle, zoom out / in (also `-` / `+`), sort.
@@ -45,7 +46,7 @@ Atlas refuses requests from browsers, so the extension goes through a small loca
 | --- | --- |
 | `manifest.json` | Extension config and permissions |
 | `background.js` | Toggles the overlay on the current page when you click the toolbar icon |
-| `extract.js` | Image and link extraction, shared by the page scan and the crawler |
+| `extract.js` | Image, video and link extraction, shared by the page scan and the crawler |
 | `gallery.html/.css/.js` | The gallery, scanning, crawling, selection, downloads and Add to Atlas |
 | `atlas-bridge/` | Local helper that forwards images to Atlas, plus its installer |
 | `icons/atlas.png` | Atlas's app icon, for the Add to Atlas button |
